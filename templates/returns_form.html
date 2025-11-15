@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+
+{% block title %}Retour de livre - Bibliothèque{% endblock %}
+{% block page_title %}Retour de livre{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>
+            <i class="fas fa-undo"></i>
+            Enregistrer un retour de livre
+        </h3>
+        <a href="{% url 'loans_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i>
+            Retour aux emprunts
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Colonne gauche -->
+                <div>
+                    <div class="form-group">
+                        <label for="loan">
+                            Sélectionner l'emprunt <span class="required">*</span>
+                        </label>
+                        <select id="loan" name="loan" required>
+                            <option value="">-- Choisir un emprunt actif --</option>
+                            {% for loan in active_loans %}
+                            <option value="{{ loan.id }}" 
+                                    data-user="{{ loan.user.get_full_name }}"
+                                    data-book="{{ loan.book.title }}"
+                                    data-borrow="{{ loan.borrow_date|date:'d/m/Y' }}"
+                                    data-due="{{ loan.due_date|date:'d/m/Y' }}"
+                                    data-overdue="{{ loan.is_overdue|yesno:'true,false' }}">
+                                {{ loan.user.get_full_name }} - {{ loan.book.title }} 
+                                {% if loan.is_overdue %}(EN RETARD){% endif %}
+                            </option>
+                            {% empty %}
+                            <option value="1" data-user="Marie Dupont" data-book="Le Petit Prince" 
+                                    data-borrow="25/10/2025" data-due="08/11/2025" data-overdue="false">
+                                Marie Dupont - Le Petit Prince
+                            </option>
+                            <option value="3" data-user="Lucas Petit" data-book="Le Seigneur des Anneaux" 
+                                    data-borrow="10/10/2025" data-due="24/10/2025" data-overdue="true">
+                                Lucas Petit - Le Seigneur des Anneaux (EN RETARD)
+                            </option>
+                            <option value="4" data-user="Sophie Bernard" data-book="Harry Potter - Tome 1" 
+                                    data-borrow="28/10/2025" data-due="11/11/2025" data-overdue="false">
+                                Sophie Bernard - Harry Potter - Tome 1
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <span class="form-help">Seuls les emprunts non retournés sont affichés</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="return_date">
+                            Date de retour <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            id="return_date" 
+                            name="return_date" 
+                            value="{{ today|date:'Y-m-d' }}"
+                            required
+                        >
+                        <span class="form-help">Date effective du retour du livre</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="condition">
+                            État du livre <span class="required">*</span>
+                        </label>
+                        <select id="condition" name="condition" required>
+                            <option value="">-- Évaluer l'état --</option>
+                            <option value="excellent">Excellent - Comme neuf</option>
+                            <option value="good" selected>Bon - Légères traces d'usage</option>
+                            <option value="fair">Acceptable - Quelques dégradations</option>
+                            <option value="poor">Mauvais - Nécessite réparation</option>
+                            <option value="damaged">Endommagé - Non utilisable</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Colonne droite -->
+                <div>
+                    <!-- Loan Details Card -->
+                    <div id="loan-details" style="background: #f9fafb; border-radius: 8px; padding: 20px; display: none;">
+                        <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 16px; color: #111827;">
+                            <i class="fas fa-info-circle"></i> Détails de l'emprunt
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 14px;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #6b7280;">Emprunteur:</span>
+                                <strong id="detail-user">-</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #6b7280;">Livre:</span>
+                                <strong id="detail-book">-</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #6b7280;">Date d'emprunt:</span>
+                                <strong id="detail-borrow">-</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #6b7280;">Date de retour prévue:</span>
+                                <strong id="detail-due">-</strong>
+                            </div>
+                            <div id="overdue-warning" style="display: none; margin-top: 8px; padding: 12px; background: #fee2e2; border-left: 4px solid #ef4444; border-radius: 4px;">
+                                <strong style="color: #991b1b;">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Retour en retard !
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label for="notes">
+                            Notes sur le retour
+                        </label>
+                        <textarea 
+                            id="notes" 
+                            name="notes" 
+                            placeholder="Remarques particulières (dégâts, pages manquantes, etc.)"
+                            rows="5"
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" name="apply_penalty" id="apply_penalty">
+                            <span>Appliquer une pénalité pour retard</span>
+                        </label>
+                        <span class="form-help">Si le livre est retourné en retard</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-group" style="justify-content: flex-end; margin-top: 24px;">
+                <a href="{% url 'loans_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-check"></i>
+                    Valider le retour
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Recent Returns -->
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-history"></i> Retours récents</h3>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Livre</th>
+                        <th>Date de retour</th>
+                        <th>État</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for return in recent_returns %}
+                    <tr>
+                        <td>{{ return.user }}</td>
+                        <td>{{ return.book }}</td>
+                        <td>{{ return.return_date|date:"d/m/Y" }}</td>
+                        <td><span class="badge badge-{{ return.condition_class }}">{{ return.condition }}</span></td>
+                        <td><span class="badge badge-{{ return.status_class }}">{{ return.status }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td>Jean Martin</td>
+                        <td>1984</td>
+                        <td>31/10/2025</td>
+                        <td><span class="badge badge-success">Bon état</span></td>
+                        <td><span class="badge badge-info">À temps</span></td>
+                    </tr>
+                    <tr>
+                        <td>Emma Dubois</td>
+                        <td>Les Misérables</td>
+                        <td>30/10/2025</td>
+                        <td><span class="badge badge-success">Excellent</span></td>
+                        <td><span class="badge badge-warning">1 jour de retard</span></td>
+                    </tr>
+                    <tr>
+                        <td>Thomas Rousseau</td>
+                        <td>L'Étranger</td>
+                        <td>29/10/2025</td>
+                        <td><span class="badge badge-success">Bon état</span></td>
+                        <td><span class="badge badge-info">À temps</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+// Show loan details when selected
+document.getElementById('loan').addEventListener('change', function() {
+    const option = this.options[this.selectedIndex];
+    const detailsDiv = document.getElementById('loan-details');
+    
+    if (this.value) {
+        document.getElementById('detail-user').textContent = option.getAttribute('data-user');
+        document.getElementById('detail-book').textContent = option.getAttribute('data-book');
+        document.getElementById('detail-borrow').textContent = option.getAttribute('data-borrow');
+        document.getElementById('detail-due').textContent = option.getAttribute('data-due');
+        
+        const isOverdue = option.getAttribute('data-overdue') === 'true';
+        document.getElementById('overdue-warning').style.display = isOverdue ? 'block' : 'none';
+        document.getElementById('apply_penalty').checked = isOverdue;
+        
+        detailsDiv.style.display = 'block';
+    } else {
+        detailsDiv.style.display = 'none';
+    }
+});
+
+// Pre-select loan if provided in URL
+const urlParams = new URLSearchParams(window.location.search);
+const loanId = urlParams.get('loan');
+if (loanId) {
+    document.getElementById('loan').value = loanId;
+    document.getElementById('loan').dispatchEvent(new Event('change'));
+}
+</script>
+{% endblock %}

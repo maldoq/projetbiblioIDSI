@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}Emprunts - Bibliothèque{% endblock %}
+{% block page_title %}Gestion des emprunts{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-exchange-alt"></i> Liste des emprunts</h3>
+        <div class="btn-group">
+            <a href="{% url 'loans_form' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Nouvel emprunt
+            </a>
+            <a href="{% url 'returns_form' %}" class="btn btn-success">
+                <i class="fas fa-undo"></i>
+                Retour de livre
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- Filter Tabs -->
+        <div style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 2px solid #e5e7eb; padding-bottom: 0;">
+            <a href="?status=all" 
+               class="btn btn-sm {% if status_filter == 'all' or not status_filter %}btn-primary{% else %}btn-secondary{% endif %}"
+               style="border-radius: 8px 8px 0 0;">
+                <i class="fas fa-list"></i> Tous
+            </a>
+            <a href="?status=active" 
+               class="btn btn-sm {% if status_filter == 'active' %}btn-primary{% else %}btn-secondary{% endif %}"
+               style="border-radius: 8px 8px 0 0;">
+                <i class="fas fa-hourglass-half"></i> En cours
+            </a>
+            <a href="?status=late" 
+               class="btn btn-sm {% if status_filter == 'late' %}btn-warning{% else %}btn-secondary{% endif %}"
+               style="border-radius: 8px 8px 0 0;">
+                <i class="fas fa-exclamation-triangle"></i> En retard
+            </a>
+            <a href="?status=returned" 
+               class="btn btn-sm {% if status_filter == 'returned' %}btn-success{% else %}btn-secondary{% endif %}"
+               style="border-radius: 8px 8px 0 0;">
+                <i class="fas fa-check-circle"></i> Retournés
+            </a>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <form method="get" style="display: flex; gap: 12px; width: 100%;">
+                <input 
+                    type="text" 
+                    name="search" 
+                    class="search-input" 
+                    placeholder="Rechercher un emprunt (utilisateur, livre...)"
+                    value="{{ search_query }}"
+                >
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Rechercher
+                </button>
+            </form>
+        </div>
+
+        <!-- Loans Table -->
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Utilisateur</th>
+                        <th>Livre</th>
+                        <th>Date d'emprunt</th>
+                        <th>Date de retour prévue</th>
+                        <th>Date de retour réelle</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loan in loans %}
+                    <tr>
+                        <td>#{{ loan.id }}</td>
+                        <td>
+                            <strong>{{ loan.user.get_full_name }}</strong><br>
+                            <small style="color: #6b7280;">{{ loan.user.class_name }}</small>
+                        </td>
+                        <td>
+                            <strong>{{ loan.book.title }}</strong><br>
+                            <small style="color: #6b7280;">{{ loan.book.author }}</small>
+                        </td>
+                        <td>{{ loan.borrow_date|date:"d/m/Y" }}</td>
+                        <td>{{ loan.due_date|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if loan.return_date %}
+                            {{ loan.return_date|date:"d/m/Y" }}
+                            {% else %}
+                            <span style="color: #9ca3af;">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if loan.return_date %}
+                            <span class="badge badge-info">
+                                <i class="fas fa-check"></i> Retourné
+                            </span>
+                            {% elif loan.is_overdue %}
+                            <span class="badge badge-danger">
+                                <i class="fas fa-exclamation-circle"></i> En retard
+                            </span>
+                            {% else %}
+                            <span class="badge badge-success">
+                                <i class="fas fa-clock"></i> En cours
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                {% if not loan.return_date %}
+                                <a href="{% url 'returns_form' %}?loan={{ loan.id }}" 
+                                   class="btn btn-sm btn-success" 
+                                   title="Marquer comme retourné">
+                                    <i class="fas fa-undo"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'loans_detail' loan.id %}" class="btn btn-sm btn-icon btn-view" title="Voir">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'loans_delete' loan.id %}" 
+                                   class="btn btn-sm btn-icon btn-delete" 
+                                   title="Supprimer"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet emprunt ?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td>#001</td>
+                        <td><strong>Marie Dupont</strong><br><small style="color: #6b7280;">Terminale A</small></td>
+                        <td><strong>Le Petit Prince</strong><br><small style="color: #6b7280;">Antoine de Saint-Exupéry</small></td>
+                        <td>25/10/2025</td>
+                        <td>08/11/2025</td>
+                        <td><span style="color: #9ca3af;">-</span></td>
+                        <td><span class="badge badge-success"><i class="fas fa-clock"></i> En cours</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn btn-sm btn-success"><i class="fas fa-undo"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#002</td>
+                        <td><strong>Jean Martin</strong><br><small style="color: #6b7280;">Première B</small></td>
+                        <td><strong>1984</strong><br><small style="color: #6b7280;">George Orwell</small></td>
+                        <td>20/10/2025</td>
+                        <td>03/11/2025</td>
+                        <td>31/10/2025</td>
+                        <td><span class="badge badge-info"><i class="fas fa-check"></i> Retourné</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#003</td>
+                        <td><strong>Lucas Petit</strong><br><small style="color: #6b7280;">Terminale D</small></td>
+                        <td><strong>Le Seigneur des Anneaux</strong><br><small style="color: #6b7280;">J.R.R. Tolkien</small></td>
+                        <td>10/10/2025</td>
+                        <td>24/10/2025</td>
+                        <td><span style="color: #9ca3af;">-</span></td>
+                        <td><span class="badge badge-danger"><i class="fas fa-exclamation-circle"></i> En retard</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn btn-sm btn-success"><i class="fas fa-undo"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#004</td>
+                        <td><strong>Sophie Bernard</strong><br><small style="color: #6b7280;">Seconde C</small></td>
+                        <td><strong>Harry Potter - Tome 1</strong><br><small style="color: #6b7280;">J.K. Rowling</small></td>
+                        <td>28/10/2025</td>
+                        <td>11/11/2025</td>
+                        <td><span style="color: #9ca3af;">-</span></td>
+                        <td><span class="badge badge-success"><i class="fas fa-clock"></i> En cours</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn btn-sm btn-success"><i class="fas fa-undo"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#005</td>
+                        <td><strong>Emma Dubois</strong><br><small style="color: #6b7280;">Première A</small></td>
+                        <td><strong>Les Misérables</strong><br><small style="color: #6b7280;">Victor Hugo</small></td>
+                        <td>15/10/2025</td>
+                        <td>29/10/2025</td>
+                        <td>30/10/2025</td>
+                        <td><span class="badge badge-info"><i class="fas fa-check"></i> Retourné</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; Première</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Suivant</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Dernière &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

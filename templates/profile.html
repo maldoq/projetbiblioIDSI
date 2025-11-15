@@ -1,0 +1,314 @@
+{% extends 'base.html' %}
+
+{% block title %}Mon profil - Bibliothèque{% endblock %}
+{% block page_title %}Mon profil{% endblock %}
+
+{% block content %}
+<div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px;">
+    <!-- Left Column - Profile Info -->
+    <div>
+        <!-- Profile Card -->
+        <div class="card">
+            <div class="card-body" style="text-align: center;">
+                <div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #2563eb 0%, #8b5cf6 100%); color: white; display: flex; align-items: center; justify-content: center; font-size: 48px; font-weight: 700; margin: 0 auto 16px; box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3);">
+                    {{ user.first_name.0|upper }}{{ user.last_name.0|upper }}
+                </div>
+                <h3 style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">
+                    {{ user.first_name }} {{ user.last_name }}
+                </h3>
+                <p style="color: #6b7280; margin-bottom: 16px;">
+                    {{ user.role|default:"Bibliothécaire" }}
+                </p>
+                <div style="display: inline-block; padding: 4px 12px; background: #d1fae5; color: #065f46; border-radius: 20px; font-size: 13px; font-weight: 600;">
+                    <i class="fas fa-check-circle"></i>
+                    Compte actif
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-chart-bar"></i> Statistiques</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9fafb; border-radius: 8px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 8px; background: #dbeafe; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-book" style="color: #2563eb; font-size: 18px;"></i>
+                            </div>
+                            <span style="font-size: 14px; color: #6b7280;">Livres gérés</span>
+                        </div>
+                        <strong style="font-size: 20px; color: #111827;">{{ total_books|default:"245" }}</strong>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9fafb; border-radius: 8px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 8px; background: #d1fae5; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-exchange-alt" style="color: #10b981; font-size: 18px;"></i>
+                            </div>
+                            <span style="font-size: 14px; color: #6b7280;">Emprunts traités</span>
+                        </div>
+                        <strong style="font-size: 20px; color: #111827;">{{ total_loans|default:"156" }}</strong>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9fafb; border-radius: 8px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 40px; height: 40px; border-radius: 8px; background: #fef3c7; display: flex; align-items: center; justify-content: center;">
+                                <i class="fas fa-users" style="color: #f59e0b; font-size: 18px;"></i>
+                            </div>
+                            <span style="font-size: 14px; color: #6b7280;">Utilisateurs</span>
+                        </div>
+                        <strong style="font-size: 20px; color: #111827;">{{ total_users|default:"128" }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column - Details & Settings -->
+    <div>
+        <!-- Personal Information -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-user"></i> Informations personnelles</h3>
+                <button class="btn btn-sm btn-primary" onclick="toggleEditMode()">
+                    <i class="fas fa-edit"></i>
+                    Modifier
+                </button>
+            </div>
+            <div class="card-body">
+                <form method="post" id="profile-form">
+                    {% csrf_token %}
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="first_name">Prénom</label>
+                            <input 
+                                type="text" 
+                                id="first_name" 
+                                name="first_name" 
+                                value="{{ user.first_name }}"
+                                disabled
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="last_name">Nom</label>
+                            <input 
+                                type="text" 
+                                id="last_name" 
+                                name="last_name" 
+                                value="{{ user.last_name }}"
+                                disabled
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                value="{{ user.email }}"
+                                disabled
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="phone">Téléphone</label>
+                            <input 
+                                type="text" 
+                                id="phone" 
+                                name="phone" 
+                                value="{{ user.phone }}"
+                                disabled
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="username">Nom d'utilisateur</label>
+                            <input 
+                                type="text" 
+                                id="username" 
+                                name="username" 
+                                value="{{ user.username }}"
+                                disabled
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="date_joined">Membre depuis</label>
+                            <input 
+                                type="text" 
+                                id="date_joined" 
+                                value="{{ user.date_joined|date:'d/m/Y' }}"
+                                disabled
+                            >
+                        </div>
+                    </div>
+
+                    <div id="edit-buttons" style="display: none; margin-top: 20px; justify-content: flex-end; gap: 12px;">
+                        <button type="button" class="btn btn-secondary" onclick="toggleEditMode()">
+                            <i class="fas fa-times"></i>
+                            Annuler
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-lock"></i> Changer le mot de passe</h3>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{% url 'change_password' %}">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="current_password">Mot de passe actuel</label>
+                        <input 
+                            type="password" 
+                            id="current_password" 
+                            name="current_password" 
+                            placeholder="Entrez votre mot de passe actuel"
+                            required
+                        >
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label for="new_password">Nouveau mot de passe</label>
+                            <input 
+                                type="password" 
+                                id="new_password" 
+                                name="new_password" 
+                                placeholder="Nouveau mot de passe"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirm_password">Confirmer le mot de passe</label>
+                            <input 
+                                type="password" 
+                                id="confirm_password" 
+                                name="confirm_password" 
+                                placeholder="Confirmer le mot de passe"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px; border-radius: 4px; margin-bottom: 16px;">
+                        <div style="font-size: 13px; color: #1e40af;">
+                            <i class="fas fa-info-circle"></i>
+                            <strong>Conseils de sécurité:</strong>
+                            <ul style="margin: 8px 0 0 20px; padding: 0;">
+                                <li>Au moins 8 caractères</li>
+                                <li>Mélanger majuscules et minuscules</li>
+                                <li>Inclure des chiffres et symboles</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-key"></i>
+                            Changer le mot de passe
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-history"></i> Activité récente</h3>
+            </div>
+            <div class="card-body">
+                <div style="display: flex; flex-direction: column; gap: 16px;">
+                    {% for activity in recent_activities %}
+                    <div style="display: flex; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
+                        <div style="width: 40px; height: 40px; border-radius: 8px; background: #f9fafb; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                            <i class="fas fa-{{ activity.icon }}" style="color: #6b7280;"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">{{ activity.action }}</div>
+                            <div style="font-size: 13px; color: #6b7280; margin-top: 2px;">{{ activity.timestamp|date:"d/m/Y H:i" }}</div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="display: flex; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
+                        <div style="width: 40px; height: 40px; border-radius: 8px; background: #f9fafb; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-arrow-right" style="color: #6b7280;"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">Emprunt enregistré</div>
+                            <div style="font-size: 13px; color: #6b7280; margin-top: 2px;">31/10/2025 10:30</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
+                        <div style="width: 40px; height: 40px; border-radius: 8px; background: #f9fafb; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-book-medical" style="color: #6b7280;"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">Nouveau livre ajouté</div>
+                            <div style="font-size: 13px; color: #6b7280; margin-top: 2px;">30/10/2025 16:45</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 12px;">
+                        <div style="width: 40px; height: 40px; border-radius: 8px; background: #f9fafb; display: flex; align-items: center; justify-content: center;">
+                            <i class="fas fa-arrow-left" style="color: #6b7280;"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 14px; font-weight: 500; color: #111827;">Retour de livre validé</div>
+                            <div style="font-size: 13px; color: #6b7280; margin-top: 2px;">30/10/2025 09:15</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div style="margin-top: 16px; text-align: center;">
+                    <a href="{% url 'history' %}" class="btn btn-sm btn-secondary">
+                        Voir toute l'activité
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleEditMode() {
+    const form = document.getElementById('profile-form');
+    const inputs = form.querySelectorAll('input:not([type="hidden"])');
+    const editButtons = document.getElementById('edit-buttons');
+    const editButton = document.querySelector('.card-header button');
+    
+    const isDisabled = inputs[0].disabled;
+    
+    inputs.forEach(input => {
+        if (input.id !== 'username' && input.id !== 'date_joined') {
+            input.disabled = !isDisabled;
+        }
+    });
+    
+    if (isDisabled) {
+        editButtons.style.display = 'flex';
+        editButton.style.display = 'none';
+    } else {
+        editButtons.style.display = 'none';
+        editButton.style.display = 'inline-flex';
+    }
+}
+</script>
+{% endblock %}

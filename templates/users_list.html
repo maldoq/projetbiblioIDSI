@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}Utilisateurs - Bibliothèque{% endblock %}
+{% block page_title %}Gestion des utilisateurs{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-users"></i> Liste des utilisateurs</h3>
+        <a href="{% url 'users_form' %}" class="btn btn-primary">
+            <i class="fas fa-user-plus"></i>
+            Ajouter un utilisateur
+        </a>
+    </div>
+    <div class="card-body">
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <form method="get" style="display: flex; gap: 12px; width: 100%;">
+                <input 
+                    type="text" 
+                    name="search" 
+                    class="search-input" 
+                    placeholder="Rechercher un utilisateur (nom, email, classe...)"
+                    value="{{ search_query }}"
+                >
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                    Rechercher
+                </button>
+                {% if search_query %}
+                <a href="{% url 'users_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Réinitialiser
+                </a>
+                {% endif %}
+            </form>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nom complet</th>
+                        <th>Email</th>
+                        <th>Classe</th>
+                        <th>Emprunts actifs</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>#{{ user.id }}</td>
+                        <td>
+                            <strong>{{ user.first_name }} {{ user.last_name }}</strong>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.class_name }}</td>
+                        <td>
+                            <span class="badge badge-info">
+                                {{ user.active_loans|default:"0" }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge badge-success">Actif</span>
+                            {% else %}
+                            <span class="badge badge-secondary">Inactif</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'users_detail' user.id %}" class="btn btn-sm btn-icon btn-view" title="Voir">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'users_form' user.id %}" class="btn btn-sm btn-icon btn-edit" title="Modifier">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'users_delete' user.id %}" 
+                                   class="btn btn-sm btn-icon btn-delete" 
+                                   title="Supprimer"
+                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td>#001</td>
+                        <td><strong>Marie Dupont</strong></td>
+                        <td>marie.dupont@ecole.fr</td>
+                        <td>Terminale A</td>
+                        <td><span class="badge badge-info">2</span></td>
+                        <td><span class="badge badge-success">Actif</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#002</td>
+                        <td><strong>Jean Martin</strong></td>
+                        <td>jean.martin@ecole.fr</td>
+                        <td>Première B</td>
+                        <td><span class="badge badge-info">1</span></td>
+                        <td><span class="badge badge-success">Actif</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#003</td>
+                        <td><strong>Sophie Bernard</strong></td>
+                        <td>sophie.bernard@ecole.fr</td>
+                        <td>Seconde C</td>
+                        <td><span class="badge badge-info">3</span></td>
+                        <td><span class="badge badge-success">Actif</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#004</td>
+                        <td><strong>Lucas Petit</strong></td>
+                        <td>lucas.petit@ecole.fr</td>
+                        <td>Terminale D</td>
+                        <td><span class="badge badge-info">0</span></td>
+                        <td><span class="badge badge-secondary">Inactif</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>#005</td>
+                        <td><strong>Emma Dubois</strong></td>
+                        <td>emma.dubois@ecole.fr</td>
+                        <td>Première A</td>
+                        <td><span class="badge badge-info">1</span></td>
+                        <td><span class="badge badge-success">Actif</span></td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="pagination">
+            {% if page_obj.has_previous %}
+            <a href="?page=1">&laquo; Première</a>
+            <a href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Suivant</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Dernière &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

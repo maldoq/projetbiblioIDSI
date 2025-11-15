@@ -1,0 +1,203 @@
+{% extends 'base.html' %}
+
+{% block title %}Nouvel emprunt - Bibliothèque{% endblock %}
+{% block page_title %}Nouvel emprunt{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>
+            <i class="fas fa-book-reader"></i>
+            Enregistrer un nouvel emprunt
+        </h3>
+        <a href="{% url 'loans_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i>
+            Retour aux emprunts
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Colonne gauche -->
+                <div>
+                    <div class="form-group">
+                        <label for="user">
+                            Utilisateur / Emprunteur <span class="required">*</span>
+                        </label>
+                        <select id="user" name="user" required>
+                            <option value="">-- Sélectionner un utilisateur --</option>
+                            {% for user in users %}
+                            <option value="{{ user.id }}" {% if loan.user.id == user.id %}selected{% endif %}>
+                                {{ user.get_full_name }} - {{ user.class_name }} ({{ user.student_id }})
+                            </option>
+                            {% empty %}
+                            <option value="1">Marie Dupont - Terminale A (ETU2025001)</option>
+                            <option value="2">Jean Martin - Première B (ETU2025002)</option>
+                            <option value="3">Sophie Bernard - Seconde C (ETU2025003)</option>
+                            <option value="4">Lucas Petit - Terminale D (ETU2025004)</option>
+                            <option value="5">Emma Dubois - Première A (ETU2025005)</option>
+                            {% endfor %}
+                        </select>
+                        <span class="form-help">Choisissez l'utilisateur qui emprunte le livre</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="book">
+                            Livre <span class="required">*</span>
+                        </label>
+                        <select id="book" name="book" required>
+                            <option value="">-- Sélectionner un livre --</option>
+                            {% for book in available_books %}
+                            <option value="{{ book.id }}" {% if loan.book.id == book.id %}selected{% endif %}>
+                                {{ book.title }} - {{ book.author }} (Dispo: {{ book.available_quantity }})
+                            </option>
+                            {% empty %}
+                            <option value="1">Le Petit Prince - Antoine de Saint-Exupéry (Dispo: 3)</option>
+                            <option value="2">1984 - George Orwell (Dispo: 2)</option>
+                            <option value="3">Les Misérables - Victor Hugo (Dispo: 2)</option>
+                            <option value="4">L'Étranger - Albert Camus (Dispo: 4)</option>
+                            <option value="5">Le Seigneur des Anneaux - J.R.R. Tolkien (Dispo: 1)</option>
+                            {% endfor %}
+                        </select>
+                        <span class="form-help">Seuls les livres disponibles sont affichés</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="borrow_date">
+                            Date d'emprunt <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            id="borrow_date" 
+                            name="borrow_date" 
+                            value="{{ loan.borrow_date|date:'Y-m-d'|default:today }}"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <!-- Colonne droite -->
+                <div>
+                    <div class="form-group">
+                        <label for="due_date">
+                            Date de retour prévue <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="date" 
+                            id="due_date" 
+                            name="due_date" 
+                            value="{{ loan.due_date|date:'Y-m-d' }}"
+                            required
+                        >
+                        <span class="form-help">Date limite de retour du livre</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="loan_duration">
+                            Durée d'emprunt (jours)
+                        </label>
+                        <select id="loan_duration" name="loan_duration">
+                            <option value="">-- Personnalisée --</option>
+                            <option value="7">7 jours (1 semaine)</option>
+                            <option value="14" selected>14 jours (2 semaines)</option>
+                            <option value="21">21 jours (3 semaines)</option>
+                            <option value="30">30 jours (1 mois)</option>
+                        </select>
+                        <span class="form-help">Calcule automatiquement la date de retour</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">
+                            Notes / Remarques
+                        </label>
+                        <textarea 
+                            id="notes" 
+                            name="notes" 
+                            placeholder="Remarques particulières sur cet emprunt..."
+                            rows="5"
+                        >{{ loan.notes }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Information Box -->
+            <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px; border-radius: 8px; margin: 24px 0;">
+                <div style="display: flex; align-items: start; gap: 12px;">
+                    <i class="fas fa-info-circle" style="color: #3b82f6; font-size: 20px; margin-top: 2px;"></i>
+                    <div>
+                        <strong style="color: #1e40af; display: block; margin-bottom: 4px;">Informations importantes</strong>
+                        <ul style="margin: 0; padding-left: 20px; color: #1e40af; font-size: 14px;">
+                            <li>La durée standard d'emprunt est de 14 jours</li>
+                            <li>Un utilisateur peut emprunter jusqu'à 3 livres simultanément</li>
+                            <li>Les retards entraînent une suspension temporaire des droits d'emprunt</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-group" style="justify-content: flex-end;">
+                <a href="{% url 'loans_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-check"></i>
+                    Enregistrer l'emprunt
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Quick Info Card -->
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-chart-line"></i> Statistiques rapides</h3>
+    </div>
+    <div class="card-body">
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;">
+            <div style="text-align: center; padding: 16px; background: #f9fafb; border-radius: 8px;">
+                <div style="font-size: 32px; font-weight: 700; color: #2563eb;">{{ total_active_loans|default:"32" }}</div>
+                <div style="font-size: 14px; color: #6b7280;">Emprunts actifs</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: #f9fafb; border-radius: 8px;">
+                <div style="font-size: 32px; font-weight: 700; color: #10b981;">{{ available_books_count|default:"187" }}</div>
+                <div style="font-size: 14px; color: #6b7280;">Livres disponibles</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: #f9fafb; border-radius: 8px;">
+                <div style="font-size: 32px; font-weight: 700; color: #ef4444;">{{ overdue_loans|default:"5" }}</div>
+                <div style="font-size: 14px; color: #6b7280;">Retards en cours</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-calculate due date based on loan duration
+document.getElementById('loan_duration').addEventListener('change', function() {
+    const duration = parseInt(this.value);
+    if (duration) {
+        const borrowDate = new Date(document.getElementById('borrow_date').value || new Date());
+        const dueDate = new Date(borrowDate);
+        dueDate.setDate(dueDate.getDate() + duration);
+        
+        const year = dueDate.getFullYear();
+        const month = String(dueDate.getMonth() + 1).padStart(2, '0');
+        const day = String(dueDate.getDate()).padStart(2, '0');
+        
+        document.getElementById('due_date').value = `${year}-${month}-${day}`;
+    }
+});
+
+// Update due date when borrow date changes
+document.getElementById('borrow_date').addEventListener('change', function() {
+    const durationSelect = document.getElementById('loan_duration');
+    if (durationSelect.value) {
+        durationSelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock %}

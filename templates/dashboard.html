@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de bord - Bibliothèque{% endblock %}
+{% block page_title %}Tableau de bord{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="fas fa-book"></i>
+        </div>
+        <div class="stat-details">
+            <h4>{{ total_books|default:"245" }}</h4>
+            <p>Livres disponibles</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-details">
+            <h4>{{ active_loans|default:"32" }}</h4>
+            <p>Emprunts en cours</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="stat-details">
+            <h4>{{ late_returns|default:"5" }}</h4>
+            <p>Retours en retard</p>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-details">
+            <h4>{{ total_users|default:"128" }}</h4>
+            <p>Utilisateurs actifs</p>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-clock"></i> Activités récentes</h3>
+        <a href="{% url 'history' %}" class="btn btn-sm btn-secondary">
+            Voir tout
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Livre</th>
+                        <th>Action</th>
+                        <th>Date</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in recent_activities|default:activities_placeholder %}
+                    <tr>
+                        <td>
+                            <strong>{{ activity.user_name }}</strong><br>
+                            <small style="color: #6b7280;">{{ activity.user_class }}</small>
+                        </td>
+                        <td>{{ activity.book_title }}</td>
+                        <td>
+                            <i class="fas fa-{{ activity.action_icon }}"></i>
+                            {{ activity.action }}
+                        </td>
+                        <td>{{ activity.date }}</td>
+                        <td>
+                            <span class="badge badge-{{ activity.status_class }}">
+                                {{ activity.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td>Marie Dupont</td>
+                        <td>Le Petit Prince</td>
+                        <td><i class="fas fa-arrow-right"></i> Emprunt</td>
+                        <td>31/10/2025 10:30</td>
+                        <td><span class="badge badge-success">Validé</span></td>
+                    </tr>
+                    <tr>
+                        <td>Jean Martin</td>
+                        <td>1984 - George Orwell</td>
+                        <td><i class="fas fa-arrow-left"></i> Retour</td>
+                        <td>31/10/2025 09:15</td>
+                        <td><span class="badge badge-info">Rendu</span></td>
+                    </tr>
+                    <tr>
+                        <td>Sophie Bernard</td>
+                        <td>Harry Potter - Tome 1</td>
+                        <td><i class="fas fa-arrow-right"></i> Emprunt</td>
+                        <td>30/10/2025 16:45</td>
+                        <td><span class="badge badge-success">Validé</span></td>
+                    </tr>
+                    <tr>
+                        <td>Lucas Petit</td>
+                        <td>Le Seigneur des Anneaux</td>
+                        <td><i class="fas fa-clock"></i> Rappel</td>
+                        <td>30/10/2025 14:20</td>
+                        <td><span class="badge badge-warning">En retard</span></td>
+                    </tr>
+                    <tr>
+                        <td>Emma Dubois</td>
+                        <td>Les Misérables</td>
+                        <td><i class="fas fa-arrow-left"></i> Retour</td>
+                        <td>30/10/2025 11:00</td>
+                        <td><span class="badge badge-info">Rendu</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-bolt"></i> Actions rapides</h3>
+    </div>
+    <div class="card-body">
+        <div class="btn-group">
+            <a href="{% url 'loans_form' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i>
+                Nouvel emprunt
+            </a>
+            <a href="{% url 'returns_form' %}" class="btn btn-success">
+                <i class="fas fa-undo"></i>
+                Retour de livre
+            </a>
+            <a href="{% url 'books_form' %}" class="btn btn-secondary">
+                <i class="fas fa-book"></i>
+                Ajouter un livre
+            </a>
+            <a href="{% url 'users_form' %}" class="btn btn-secondary">
+                <i class="fas fa-user-plus"></i>
+                Nouvel utilisateur
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

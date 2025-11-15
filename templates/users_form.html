@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if user_obj %}Modifier{% else %}Ajouter{% endif %} un utilisateur - Bibliothèque{% endblock %}
+{% block page_title %}{% if user_obj %}Modifier{% else %}Ajouter{% endif %} un utilisateur{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>
+            <i class="fas fa-user-{% if user_obj %}edit{% else %}plus{% endif %}"></i>
+            {% if user_obj %}Modifier l'utilisateur{% else %}Nouvel utilisateur{% endif %}
+        </h3>
+        <a href="{% url 'users_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i>
+            Retour à la liste
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Colonne gauche -->
+                <div>
+                    <div class="form-group">
+                        <label for="first_name">
+                            Prénom <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="first_name" 
+                            name="first_name" 
+                            value="{{ user_obj.first_name }}"
+                            placeholder="Ex: Marie"
+                            required
+                        >
+                        {% if form.first_name.errors %}
+                        <span class="form-error">{{ form.first_name.errors }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name">
+                            Nom <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="last_name" 
+                            name="last_name" 
+                            value="{{ user_obj.last_name }}"
+                            placeholder="Ex: Dupont"
+                            required
+                        >
+                        {% if form.last_name.errors %}
+                        <span class="form-error">{{ form.last_name.errors }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">
+                            Email <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            value="{{ user_obj.email }}"
+                            placeholder="Ex: marie.dupont@ecole.fr"
+                            required
+                        >
+                        {% if form.email.errors %}
+                        <span class="form-error">{{ form.email.errors }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">
+                            Téléphone
+                        </label>
+                        <input 
+                            type="text" 
+                            id="phone" 
+                            name="phone" 
+                            value="{{ user_obj.phone }}"
+                            placeholder="Ex: +225 01 02 03 04 05"
+                        >
+                        <span class="form-help">Format: +225 XX XX XX XX XX</span>
+                    </div>
+                </div>
+
+                <!-- Colonne droite -->
+                <div>
+                    <div class="form-group">
+                        <label for="class_name">
+                            Classe <span class="required">*</span>
+                        </label>
+                        <select id="class_name" name="class_name" required>
+                            <option value="">-- Sélectionner une classe --</option>
+                            <option value="6ème A" {% if user_obj.class_name == "6ème A" %}selected{% endif %}>6ème A</option>
+                            <option value="6ème B" {% if user_obj.class_name == "6ème B" %}selected{% endif %}>6ème B</option>
+                            <option value="5ème A" {% if user_obj.class_name == "5ème A" %}selected{% endif %}>5ème A</option>
+                            <option value="5ème B" {% if user_obj.class_name == "5ème B" %}selected{% endif %}>5ème B</option>
+                            <option value="4ème A" {% if user_obj.class_name == "4ème A" %}selected{% endif %}>4ème A</option>
+                            <option value="4ème B" {% if user_obj.class_name == "4ème B" %}selected{% endif %}>4ème B</option>
+                            <option value="3ème A" {% if user_obj.class_name == "3ème A" %}selected{% endif %}>3ème A</option>
+                            <option value="3ème B" {% if user_obj.class_name == "3ème B" %}selected{% endif %}>3ème B</option>
+                            <option value="Seconde A" {% if user_obj.class_name == "Seconde A" %}selected{% endif %}>Seconde A</option>
+                            <option value="Seconde B" {% if user_obj.class_name == "Seconde B" %}selected{% endif %}>Seconde B</option>
+                            <option value="Seconde C" {% if user_obj.class_name == "Seconde C" %}selected{% endif %}>Seconde C</option>
+                            <option value="Première A" {% if user_obj.class_name == "Première A" %}selected{% endif %}>Première A</option>
+                            <option value="Première B" {% if user_obj.class_name == "Première B" %}selected{% endif %}>Première B</option>
+                            <option value="Première C" {% if user_obj.class_name == "Première C" %}selected{% endif %}>Première C</option>
+                            <option value="Première D" {% if user_obj.class_name == "Première D" %}selected{% endif %}>Première D</option>
+                            <option value="Terminale A" {% if user_obj.class_name == "Terminale A" %}selected{% endif %}>Terminale A</option>
+                            <option value="Terminale B" {% if user_obj.class_name == "Terminale B" %}selected{% endif %}>Terminale B</option>
+                            <option value="Terminale C" {% if user_obj.class_name == "Terminale C" %}selected{% endif %}>Terminale C</option>
+                            <option value="Terminale D" {% if user_obj.class_name == "Terminale D" %}selected{% endif %}>Terminale D</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="student_id">
+                            Numéro d'étudiant <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="student_id" 
+                            name="student_id" 
+                            value="{{ user_obj.student_id }}"
+                            placeholder="Ex: ETU2025001"
+                            required
+                        >
+                        <span class="form-help">Identifiant unique de l'étudiant</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="date_of_birth">
+                            Date de naissance
+                        </label>
+                        <input 
+                            type="date" 
+                            id="date_of_birth" 
+                            name="date_of_birth" 
+                            value="{{ user_obj.date_of_birth|date:'Y-m-d' }}"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">
+                            Adresse
+                        </label>
+                        <textarea 
+                            id="address" 
+                            name="address" 
+                            placeholder="Ex: Cocody, Angré 8ème tranche"
+                            rows="3"
+                        >{{ user_obj.address }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input 
+                                type="checkbox" 
+                                name="is_active" 
+                                {% if user_obj.is_active or not user_obj %}checked{% endif %}
+                            >
+                            <span>Compte actif</span>
+                        </label>
+                        <span class="form-help">L'utilisateur peut emprunter des livres</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-group" style="margin-top: 24px; justify-content: flex-end;">
+                <a href="{% url 'users_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    {% if user_obj %}Mettre à jour{% else %}Enregistrer{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

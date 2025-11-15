@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if category %}Modifier{% else %}Ajouter{% endif %} une catégorie - Bibliothèque{% endblock %}
+{% block page_title %}{% if category %}Modifier{% else %}Ajouter{% endif %} une catégorie{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>
+            <i class="fas fa-tag"></i>
+            {% if category %}Modifier la catégorie{% else %}Nouvelle catégorie{% endif %}
+        </h3>
+        <a href="{% url 'categories_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i>
+            Retour aux catégories
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px;">
+                <!-- Form Fields -->
+                <div>
+                    <div class="form-group">
+                        <label for="name">
+                            Nom de la catégorie <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="name" 
+                            name="name" 
+                            value="{{ category.name }}"
+                            placeholder="Ex: Science-Fiction"
+                            required
+                        >
+                        <span class="form-help">Nom unique de la catégorie</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">
+                            Description
+                        </label>
+                        <textarea 
+                            id="description" 
+                            name="description" 
+                            placeholder="Brève description de cette catégorie..."
+                            rows="4"
+                        >{{ category.description }}</textarea>
+                        <span class="form-help">Description optionnelle pour aider à identifier la catégorie</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label for="icon">
+                                Icône <span class="required">*</span>
+                            </label>
+                            <select id="icon" name="icon" required>
+                                <option value="">-- Choisir une icône --</option>
+                                <option value="book" {% if category.icon == "book" %}selected{% endif %}>📚 Livre</option>
+                                <option value="flask" {% if category.icon == "flask" %}selected{% endif %}>🧪 Science</option>
+                                <option value="hat-wizard" {% if category.icon == "hat-wizard" %}selected{% endif %}>🧙 Fantastique</option>
+                                <option value="landmark" {% if category.icon == "landmark" %}selected{% endif %}>🏛️ Histoire</option>
+                                <option value="brain" {% if category.icon == "brain" %}selected{% endif %}>🧠 Philosophie</option>
+                                <option value="feather-alt" {% if category.icon == "feather-alt" %}selected{% endif %}>✒️ Poésie</option>
+                                <option value="rocket" {% if category.icon == "rocket" %}selected{% endif %}>🚀 Science-Fiction</option>
+                                <option value="child" {% if category.icon == "child" %}selected{% endif %}>👶 Jeunesse</option>
+                                <option value="palette" {% if category.icon == "palette" %}selected{% endif %}>🎨 Art</option>
+                                <option value="music" {% if category.icon == "music" %}selected{% endif %}>🎵 Musique</option>
+                                <option value="futbol" {% if category.icon == "futbol" %}selected{% endif %}>⚽ Sport</option>
+                                <option value="utensils" {% if category.icon == "utensils" %}selected{% endif %}>🍴 Cuisine</option>
+                                <option value="globe" {% if category.icon == "globe" %}selected{% endif %}>🌍 Géographie</option>
+                                <option value="user-tie" {% if category.icon == "user-tie" %}selected{% endif %}>💼 Biographie</option>
+                                <option value="heart" {% if category.icon == "heart" %}selected{% endif %}>❤️ Romance</option>
+                                <option value="users" {% if category.icon == "users" %}selected{% endif %}>👥 Social</option>
+                            </select>
+                            <span class="form-help">Icône représentant la catégorie</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="color">
+                                Couleur <span class="required">*</span>
+                            </label>
+                            <select id="color" name="color" required style="padding: 10px 14px;">
+                                <option value="">-- Choisir une couleur --</option>
+                                <option value="#3b82f6" {% if category.color == "#3b82f6" %}selected{% endif %} style="background: #3b82f620; color: #3b82f6; font-weight: 600;">🔵 Bleu</option>
+                                <option value="#10b981" {% if category.color == "#10b981" %}selected{% endif %} style="background: #10b98120; color: #10b981; font-weight: 600;">🟢 Vert</option>
+                                <option value="#8b5cf6" {% if category.color == "#8b5cf6" %}selected{% endif %} style="background: #8b5cf620; color: #8b5cf6; font-weight: 600;">🟣 Violet</option>
+                                <option value="#f59e0b" {% if category.color == "#f59e0b" %}selected{% endif %} style="background: #f59e0b20; color: #f59e0b; font-weight: 600;">🟠 Orange</option>
+                                <option value="#ef4444" {% if category.color == "#ef4444" %}selected{% endif %} style="background: #ef444420; color: #ef4444; font-weight: 600;">🔴 Rouge</option>
+                                <option value="#ec4899" {% if category.color == "#ec4899" %}selected{% endif %} style="background: #ec489920; color: #ec4899; font-weight: 600;">🌸 Rose</option>
+                                <option value="#06b6d4" {% if category.color == "#06b6d4" %}selected{% endif %} style="background: #06b6d420; color: #06b6d4; font-weight: 600;">🔷 Cyan</option>
+                                <option value="#84cc16" {% if category.color == "#84cc16" %}selected{% endif %} style="background: #84cc1620; color: #84cc16; font-weight: 600;">🟢 Lime</option>
+                                <option value="#f97316" {% if category.color == "#f97316" %}selected{% endif %} style="background: #f9731620; color: #f97316; font-weight: 600;">🟧 Orange foncé</option>
+                                <option value="#6366f1" {% if category.color == "#6366f1" %}selected{% endif %} style="background: #6366f120; color: #6366f1; font-weight: 600;">🔵 Indigo</option>
+                            </select>
+                            <span class="form-help">Couleur d'identification</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="slug">
+                            Slug (URL)
+                        </label>
+                        <input 
+                            type="text" 
+                            id="slug" 
+                            name="slug" 
+                            value="{{ category.slug }}"
+                            placeholder="Ex: science-fiction"
+                        >
+                        <span class="form-help">Généré automatiquement si laissé vide</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input 
+                                type="checkbox" 
+                                name="is_active" 
+                                {% if category.is_active or not category %}checked{% endif %}
+                            >
+                            <span>Catégorie active</span>
+                        </label>
+                        <span class="form-help">Les catégories inactives ne sont pas visibles</span>
+                    </div>
+                </div>
+
+                <!-- Preview Card -->
+                <div>
+                    <div style="background: #f9fafb; border-radius: 12px; padding: 20px; position: sticky; top: 100px;">
+                        <h4 style="font-size: 14px; font-weight: 600; color: #6b7280; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Aperçu
+                        </h4>
+                        
+                        <!-- Preview Card -->
+                        <div id="preview-card" style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                                <div id="preview-icon-container" style="width: 48px; height: 48px; border-radius: 10px; background: #3b82f620; display: flex; align-items: center; justify-content: center;">
+                                    <i id="preview-icon" class="fas fa-book" style="font-size: 24px; color: #3b82f6;"></i>
+                                </div>
+                            </div>
+                            <h4 id="preview-name" style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 8px;">
+                                Nom de la catégorie
+                            </h4>
+                            <p id="preview-description" style="font-size: 14px; color: #6b7280; margin-bottom: 16px; min-height: 40px;">
+                                Description de la catégorie
+                            </p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                                <div>
+                                    <div style="font-size: 24px; font-weight: 700; color: #111827;">{{ category.book_count|default:"0" }}</div>
+                                    <div style="font-size: 12px; color: #6b7280;">Livres</div>
+                                </div>
+                                <div class="btn btn-sm btn-primary" style="pointer-events: none;">
+                                    <i class="fas fa-arrow-right"></i>
+                                    Voir les livres
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 16px; padding: 12px; background: #dbeafe; border-left: 4px solid #3b82f6; border-radius: 4px;">
+                            <div style="font-size: 12px; color: #1e40af;">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Astuce:</strong> Les modifications sont prévisualisées en temps réel
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-group" style="justify-content: flex-end; margin-top: 24px;">
+                <a href="{% url 'categories_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    {% if category %}Mettre à jour{% else %}Enregistrer{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Live preview update
+const nameInput = document.getElementById('name');
+const descriptionInput = document.getElementById('description');
+const iconSelect = document.getElementById('icon');
+const colorSelect = document.getElementById('color');
+
+const previewName = document.getElementById('preview-name');
+const previewDescription = document.getElementById('preview-description');
+const previewIcon = document.getElementById('preview-icon');
+const previewIconContainer = document.getElementById('preview-icon-container');
+
+nameInput.addEventListener('input', function() {
+    previewName.textContent = this.value || 'Nom de la catégorie';
+});
+
+descriptionInput.addEventListener('input', function() {
+    previewDescription.textContent = this.value || 'Description de la catégorie';
+});
+
+iconSelect.addEventListener('change', function() {
+    previewIcon.className = `fas fa-${this.value || 'book'}`;
+});
+
+colorSelect.addEventListener('change', function() {
+    const color = this.value || '#3b82f6';
+    previewIcon.style.color = color;
+    previewIconContainer.style.background = color + '20';
+});
+
+// Auto-generate slug from name
+nameInput.addEventListener('input', function() {
+    const slugInput = document.getElementById('slug');
+    if (!slugInput.value || slugInput.dataset.autoGenerated) {
+        const slug = this.value
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+        slugInput.value = slug;
+        slugInput.dataset.autoGenerated = 'true';
+    }
+});
+
+document.getElementById('slug').addEventListener('input', function() {
+    if (this.value) {
+        delete this.dataset.autoGenerated;
+    }
+});
+</script>
+{% endblock %}

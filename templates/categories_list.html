@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+
+{% block title %}Catégories - Bibliothèque{% endblock %}
+{% block page_title %}Gestion des catégories{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3><i class="fas fa-tags"></i> Catégories de livres</h3>
+        <a href="{% url 'categories_form' %}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Ajouter une catégorie
+        </a>
+    </div>
+    <div class="card-body">
+        <!-- Categories Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 32px;">
+            {% for category in categories %}
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px; transition: all 0.3s ease; cursor: pointer;"
+                 onmouseover="this.style.borderColor='#2563eb'; this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.1)';"
+                 onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <div style="width: 48px; height: 48px; border-radius: 10px; background: {{ category.color|default:'#3b82f6' }}20; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-{{ category.icon|default:'book' }}" style="font-size: 24px; color: {{ category.color|default:'#3b82f6' }};"></i>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="{% url 'categories_form' category.id %}" class="btn btn-sm btn-icon btn-edit" title="Modifier">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'categories_delete' category.id %}" 
+                           class="btn btn-sm btn-icon btn-delete" 
+                           title="Supprimer"
+                           onclick="return confirm('Supprimer cette catégorie ?');">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </div>
+                </div>
+                <h4 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 8px;">
+                    {{ category.name }}
+                </h4>
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px; min-height: 40px;">
+                    {{ category.description|default:"Aucune description" }}
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 700; color: #111827;">{{ category.book_count|default:"0" }}</div>
+                        <div style="font-size: 12px; color: #6b7280;">Livres</div>
+                    </div>
+                    <a href="{% url 'books_list' %}?category={{ category.id }}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        Voir les livres
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <!-- Default Categories -->
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <div style="width: 48px; height: 48px; border-radius: 10px; background: #3b82f620; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-book" style="font-size: 24px; color: #3b82f6;"></i>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                <h4 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 8px;">Roman</h4>
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px; min-height: 40px;">
+                    Romans classiques et contemporains
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 700; color: #111827;">48</div>
+                        <div style="font-size: 12px; color: #6b7280;">Livres</div>
+                    </div>
+                    <a href="#" class="btn btn-sm btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        Voir les livres
+                    </a>
+                </div>
+            </div>
+
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <div style="width: 48px; height: 48px; border-radius: 10px; background: #10b98120; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-flask" style="font-size: 24px; color: #10b981;"></i>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                <h4 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 8px;">Science</h4>
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px; min-height: 40px;">
+                    Livres scientifiques et techniques
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 700; color: #111827;">32</div>
+                        <div style="font-size: 12px; color: #6b7280;">Livres</div>
+                    </div>
+                    <a href="#" class="btn btn-sm btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        Voir les livres
+                    </a>
+                </div>
+            </div>
+
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <div style="width: 48px; height: 48px; border-radius: 10px; background: #8b5cf620; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-hat-wizard" style="font-size: 24px; color: #8b5cf6;"></i>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                <h4 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 8px;">Fantastique</h4>
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px; min-height: 40px;">
+                    Fantasy, magie et mondes imaginaires
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 700; color: #111827;">25</div>
+                        <div style="font-size: 12px; color: #6b7280;">Livres</div>
+                    </div>
+                    <a href="#" class="btn btn-sm btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        Voir les livres
+                    </a>
+                </div>
+            </div>
+
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <div style="width: 48px; height: 48px; border-radius: 10px; background: #f59e0b20; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-landmark" style="font-size: 24px; color: #f59e0b;"></i>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                <h4 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 8px;">Histoire</h4>
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px; min-height: 40px;">
+                    Histoire et civilisations
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 700; color: #111827;">28</div>
+                        <div style="font-size: 12px; color: #6b7280;">Livres</div>
+                    </div>
+                    <a href="#" class="btn btn-sm btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        Voir les livres
+                    </a>
+                </div>
+            </div>
+
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <div style="width: 48px; height: 48px; border-radius: 10px; background: #ef444420; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-brain" style="font-size: 24px; color: #ef4444;"></i>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                <h4 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 8px;">Philosophie</h4>
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px; min-height: 40px;">
+                    Pensées et réflexions philosophiques
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 700; color: #111827;">18</div>
+                        <div style="font-size: 12px; color: #6b7280;">Livres</div>
+                    </div>
+                    <a href="#" class="btn btn-sm btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        Voir les livres
+                    </a>
+                </div>
+            </div>
+
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <div style="width: 48px; height: 48px; border-radius: 10px; background: #ec489920; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-feather-alt" style="font-size: 24px; color: #ec4899;"></i>
+                    </div>
+                    <div class="action-buttons">
+                        <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                        <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                <h4 style="font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 8px;">Poésie</h4>
+                <p style="font-size: 14px; color: #6b7280; margin-bottom: 16px; min-height: 40px;">
+                    Recueils de poèmes et vers
+                </p>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #e5e7eb;">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 700; color: #111827;">15</div>
+                        <div style="font-size: 12px; color: #6b7280;">Livres</div>
+                    </div>
+                    <a href="#" class="btn btn-sm btn-primary">
+                        <i class="fas fa-arrow-right"></i>
+                        Voir les livres
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Categories Table (Alternative View) -->
+        <div class="table-responsive" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Catégorie</th>
+                        <th>Description</th>
+                        <th class="text-center">Nombre de livres</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in categories %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 36px; height: 36px; border-radius: 8px; background: {{ category.color|default:'#3b82f6' }}20; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-{{ category.icon|default:'book' }}" style="color: {{ category.color|default:'#3b82f6' }};"></i>
+                                </div>
+                                <strong>{{ category.name }}</strong>
+                            </div>
+                        </td>
+                        <td>{{ category.description }}</td>
+                        <td class="text-center">
+                            <span class="badge badge-info">{{ category.book_count|default:"0" }}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{% url 'categories_form' category.id %}" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
+                                <a href="{% url 'categories_delete' category.id %}" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

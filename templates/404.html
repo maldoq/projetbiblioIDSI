@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page non trouvée - Bibliothèque Scolaire</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        .error-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .error-container {
+            max-width: 600px;
+            text-align: center;
+            background: white;
+            padding: 60px 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        .error-code {
+            font-size: 120px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 20px;
+        }
+        
+        .error-icon {
+            font-size: 80px;
+            color: #6b7280;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .error-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 12px;
+        }
+        
+        .error-message {
+            font-size: 16px;
+            color: #6b7280;
+            margin-bottom: 32px;
+            line-height: 1.6;
+        }
+        
+        .error-suggestions {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+            text-align: left;
+        }
+        
+        .error-suggestions h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 12px;
+        }
+        
+        .error-suggestions ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .error-suggestions li {
+            padding: 8px 0;
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .error-suggestions li i {
+            color: #2563eb;
+            margin-right: 8px;
+        }
+        
+        .error-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-page">
+        <div class="error-container">
+            <div class="error-icon">
+                <i class="fas fa-book-dead"></i>
+            </div>
+            
+            <div class="error-code">404</div>
+            
+            <h1 class="error-title">Page non trouvée</h1>
+            
+            <p class="error-message">
+                Désolé, la page que vous recherchez semble avoir été empruntée définitivement 
+                ou n'existe pas dans notre catalogue.
+            </p>
+            
+            <div class="error-suggestions">
+                <h4><i class="fas fa-lightbulb"></i> Suggestions :</h4>
+                <ul>
+                    <li><i class="fas fa-check"></i> Vérifiez l'URL que vous avez saisie</li>
+                    <li><i class="fas fa-check"></i> Retournez à la page d'accueil</li>
+                    <li><i class="fas fa-check"></i> Utilisez le menu de navigation</li>
+                    <li><i class="fas fa-check"></i> Contactez l'administrateur si le problème persiste</li>
+                </ul>
+            </div>
+            
+            <div class="error-actions">
+                <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                    <i class="fas fa-home"></i>
+                    Retour à l'accueil
+                </a>
+                <button onclick="window.history.back()" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Page précédente
+                </button>
+            </div>
+            
+            <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+                <p style="font-size: 14px; color: #9ca3af;">
+                    <i class="fas fa-question-circle"></i>
+                    Besoin d'aide ? 
+                    <a href="mailto:support@bibliotheque.fr" style="color: #2563eb; text-decoration: none;">
+                        Contactez le support
+                    </a>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

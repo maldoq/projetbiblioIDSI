@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if book %}Modifier{% else %}Ajouter{% endif %} un livre - Bibliothèque{% endblock %}
+{% block page_title %}{% if book %}Modifier{% else %}Ajouter{% endif %} un livre{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h3>
+            <i class="fas fa-book-{% if book %}medical{% else %}plus{% endif %}"></i>
+            {% if book %}Modifier le livre{% else %}Nouveau livre{% endif %}
+        </h3>
+        <a href="{% url 'books_list' %}" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i>
+            Retour au catalogue
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- Colonne gauche -->
+                <div>
+                    <div class="form-group">
+                        <label for="title">
+                            Titre du livre <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="title" 
+                            name="title" 
+                            value="{{ book.title }}"
+                            placeholder="Ex: Le Petit Prince"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="author">
+                            Auteur <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="author" 
+                            name="author" 
+                            value="{{ book.author }}"
+                            placeholder="Ex: Antoine de Saint-Exupéry"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="isbn">
+                            ISBN <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="isbn" 
+                            name="isbn" 
+                            value="{{ book.isbn }}"
+                            placeholder="Ex: 978-2-07-061275-8"
+                            required
+                        >
+                        <span class="form-help">Numéro international normalisé du livre</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="publisher">
+                            Éditeur <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            id="publisher" 
+                            name="publisher" 
+                            value="{{ book.publisher }}"
+                            placeholder="Ex: Gallimard"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="publication_year">
+                            Année de publication
+                        </label>
+                        <input 
+                            type="number" 
+                            id="publication_year" 
+                            name="publication_year" 
+                            value="{{ book.publication_year }}"
+                            placeholder="Ex: 1943"
+                            min="1800"
+                            max="2025"
+                        >
+                    </div>
+                </div>
+
+                <!-- Colonne droite -->
+                <div>
+                    <div class="form-group">
+                        <label for="category">
+                            Catégorie <span class="required">*</span>
+                        </label>
+                        <select id="category" name="category" required>
+                            <option value="">-- Sélectionner une catégorie --</option>
+                            <option value="Roman" {% if book.category == "Roman" %}selected{% endif %}>Roman</option>
+                            <option value="Science-Fiction" {% if book.category == "Science-Fiction" %}selected{% endif %}>Science-Fiction</option>
+                            <option value="Fantastique" {% if book.category == "Fantastique" %}selected{% endif %}>Fantastique</option>
+                            <option value="Classique" {% if book.category == "Classique" %}selected{% endif %}>Classique</option>
+                            <option value="Philosophie" {% if book.category == "Philosophie" %}selected{% endif %}>Philosophie</option>
+                            <option value="Histoire" {% if book.category == "Histoire" %}selected{% endif %}>Histoire</option>
+                            <option value="Science" {% if book.category == "Science" %}selected{% endif %}>Science</option>
+                            <option value="Poésie" {% if book.category == "Poésie" %}selected{% endif %}>Poésie</option>
+                            <option value="Biographie" {% if book.category == "Biographie" %}selected{% endif %}>Biographie</option>
+                            <option value="Jeunesse" {% if book.category == "Jeunesse" %}selected{% endif %}>Jeunesse</option>
+                            <option value="Bande Dessinée" {% if book.category == "Bande Dessinée" %}selected{% endif %}>Bande Dessinée</option>
+                            <option value="Autre" {% if book.category == "Autre" %}selected{% endif %}>Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="language">
+                            Langue <span class="required">*</span>
+                        </label>
+                        <select id="language" name="language" required>
+                            <option value="">-- Sélectionner --</option>
+                            <option value="Français" {% if book.language == "Français" %}selected{% endif %}>Français</option>
+                            <option value="Anglais" {% if book.language == "Anglais" %}selected{% endif %}>Anglais</option>
+                            <option value="Espagnol" {% if book.language == "Espagnol" %}selected{% endif %}>Espagnol</option>
+                            <option value="Allemand" {% if book.language == "Allemand" %}selected{% endif %}>Allemand</option>
+                            <option value="Arabe" {% if book.language == "Arabe" %}selected{% endif %}>Arabe</option>
+                            <option value="Autre" {% if book.language == "Autre" %}selected{% endif %}>Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="total_quantity">
+                            Quantité totale <span class="required">*</span>
+                        </label>
+                        <input 
+                            type="number" 
+                            id="total_quantity" 
+                            name="total_quantity" 
+                            value="{{ book.total_quantity }}"
+                            placeholder="Ex: 5"
+                            min="1"
+                            required
+                        >
+                        <span class="form-help">Nombre total d'exemplaires</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pages">
+                            Nombre de pages
+                        </label>
+                        <input 
+                            type="number" 
+                            id="pages" 
+                            name="pages" 
+                            value="{{ book.pages }}"
+                            placeholder="Ex: 96"
+                            min="1"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">
+                            Emplacement
+                        </label>
+                        <input 
+                            type="text" 
+                            id="location" 
+                            name="location" 
+                            value="{{ book.location }}"
+                            placeholder="Ex: Étagère A - Rayon 3"
+                        >
+                        <span class="form-help">Position dans la bibliothèque</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="form-group">
+                <label for="description">
+                    Description / Résumé
+                </label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    placeholder="Brève description du livre..."
+                    rows="4"
+                >{{ book.description }}</textarea>
+                <span class="form-help">Résumé ou informations complémentaires sur le livre</span>
+            </div>
+
+            <!-- Buttons -->
+            <div class="btn-group" style="justify-content: flex-end;">
+                <a href="{% url 'books_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i>
+                    {% if book %}Mettre à jour{% else %}Enregistrer{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
