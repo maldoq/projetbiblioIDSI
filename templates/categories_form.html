@@ -1,5 +1,11 @@
 {% extends 'base.html' %}
 
+{% if category %}
+    {% url 'categories_edit' category.id as form_url %}
+{% else %}
+    {% url 'categories_form' as form_url %}
+{% endif %}
+
 {% block title %}{% if category %}Modifier{% else %}Ajouter{% endif %} une catégorie - Bibliothèque{% endblock %}
 {% block page_title %}{% if category %}Modifier{% else %}Ajouter{% endif %} une catégorie{% endblock %}
 
@@ -16,21 +22,21 @@
         </a>
     </div>
     <div class="card-body">
-        <form method="post">
+        <form method="post" action="{{ form_url }}">
             {% csrf_token %}
             
             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px;">
                 <!-- Form Fields -->
                 <div>
                     <div class="form-group">
-                        <label for="name">
+                        <label for="nom">
                             Nom de la catégorie <span class="required">*</span>
                         </label>
                         <input 
                             type="text" 
-                            id="name" 
-                            name="name" 
-                            value="{{ category.name }}"
+                            id="nom" 
+                            name="nom" 
+                            value="{{ category.nom }}"
                             placeholder="Ex: Science-Fiction"
                             required
                         >
@@ -52,47 +58,36 @@
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                         <div class="form-group">
-                            <label for="icon">
+                            <label for="icone">
                                 Icône <span class="required">*</span>
                             </label>
-                            <select id="icon" name="icon" required>
+                            <select id="icone" name="icone" required>
                                 <option value="">-- Choisir une icône --</option>
-                                <option value="book" {% if category.icon == "book" %}selected{% endif %}>📚 Livre</option>
-                                <option value="flask" {% if category.icon == "flask" %}selected{% endif %}>🧪 Science</option>
-                                <option value="hat-wizard" {% if category.icon == "hat-wizard" %}selected{% endif %}>🧙 Fantastique</option>
-                                <option value="landmark" {% if category.icon == "landmark" %}selected{% endif %}>🏛️ Histoire</option>
-                                <option value="brain" {% if category.icon == "brain" %}selected{% endif %}>🧠 Philosophie</option>
-                                <option value="feather-alt" {% if category.icon == "feather-alt" %}selected{% endif %}>✒️ Poésie</option>
-                                <option value="rocket" {% if category.icon == "rocket" %}selected{% endif %}>🚀 Science-Fiction</option>
-                                <option value="child" {% if category.icon == "child" %}selected{% endif %}>👶 Jeunesse</option>
-                                <option value="palette" {% if category.icon == "palette" %}selected{% endif %}>🎨 Art</option>
-                                <option value="music" {% if category.icon == "music" %}selected{% endif %}>🎵 Musique</option>
-                                <option value="futbol" {% if category.icon == "futbol" %}selected{% endif %}>⚽ Sport</option>
-                                <option value="utensils" {% if category.icon == "utensils" %}selected{% endif %}>🍴 Cuisine</option>
-                                <option value="globe" {% if category.icon == "globe" %}selected{% endif %}>🌍 Géographie</option>
-                                <option value="user-tie" {% if category.icon == "user-tie" %}selected{% endif %}>💼 Biographie</option>
-                                <option value="heart" {% if category.icon == "heart" %}selected{% endif %}>❤️ Romance</option>
-                                <option value="users" {% if category.icon == "users" %}selected{% endif %}>👥 Social</option>
+                                {% for val, label in ICONE_CHOICES %}
+                                    <option value="{{ val }}" {% if category.icone == val %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                {% endfor %}
                             </select>
                             <span class="form-help">Icône représentant la catégorie</span>
                         </div>
 
                         <div class="form-group">
-                            <label for="color">
+                            <label for="couleur">
                                 Couleur <span class="required">*</span>
                             </label>
-                            <select id="color" name="color" required style="padding: 10px 14px;">
+                            <select id="couleur" name="couleur" required style="padding: 10px 14px;">
                                 <option value="">-- Choisir une couleur --</option>
-                                <option value="#3b82f6" {% if category.color == "#3b82f6" %}selected{% endif %} style="background: #3b82f620; color: #3b82f6; font-weight: 600;">🔵 Bleu</option>
-                                <option value="#10b981" {% if category.color == "#10b981" %}selected{% endif %} style="background: #10b98120; color: #10b981; font-weight: 600;">🟢 Vert</option>
-                                <option value="#8b5cf6" {% if category.color == "#8b5cf6" %}selected{% endif %} style="background: #8b5cf620; color: #8b5cf6; font-weight: 600;">🟣 Violet</option>
-                                <option value="#f59e0b" {% if category.color == "#f59e0b" %}selected{% endif %} style="background: #f59e0b20; color: #f59e0b; font-weight: 600;">🟠 Orange</option>
-                                <option value="#ef4444" {% if category.color == "#ef4444" %}selected{% endif %} style="background: #ef444420; color: #ef4444; font-weight: 600;">🔴 Rouge</option>
-                                <option value="#ec4899" {% if category.color == "#ec4899" %}selected{% endif %} style="background: #ec489920; color: #ec4899; font-weight: 600;">🌸 Rose</option>
-                                <option value="#06b6d4" {% if category.color == "#06b6d4" %}selected{% endif %} style="background: #06b6d420; color: #06b6d4; font-weight: 600;">🔷 Cyan</option>
-                                <option value="#84cc16" {% if category.color == "#84cc16" %}selected{% endif %} style="background: #84cc1620; color: #84cc16; font-weight: 600;">🟢 Lime</option>
-                                <option value="#f97316" {% if category.color == "#f97316" %}selected{% endif %} style="background: #f9731620; color: #f97316; font-weight: 600;">🟧 Orange foncé</option>
-                                <option value="#6366f1" {% if category.color == "#6366f1" %}selected{% endif %} style="background: #6366f120; color: #6366f1; font-weight: 600;">🔵 Indigo</option>
+                                <option value="#3b82f6" {% if category.couleur == "#3b82f6" %}selected{% endif %} style="background: #3b82f620; color: #3b82f6; font-weight: 600;">🔵 Bleu</option>
+                                <option value="#10b981" {% if category.couleur == "#10b981" %}selected{% endif %} style="background: #10b98120; color: #10b981; font-weight: 600;">🟢 Vert</option>
+                                <option value="#8b5cf6" {% if category.couleur == "#8b5cf6" %}selected{% endif %} style="background: #8b5cf620; color: #8b5cf6; font-weight: 600;">🟣 Violet</option>
+                                <option value="#f59e0b" {% if category.couleur == "#f59e0b" %}selected{% endif %} style="background: #f59e0b20; color: #f59e0b; font-weight: 600;">🟠 Orange</option>
+                                <option value="#ef4444" {% if category.couleur == "#ef4444" %}selected{% endif %} style="background: #ef444420; color: #ef4444; font-weight: 600;">🔴 Rouge</option>
+                                <option value="#ec4899" {% if category.couleur == "#ec4899" %}selected{% endif %} style="background: #ec489920; color: #ec4899; font-weight: 600;">🌸 Rose</option>
+                                <option value="#06b6d4" {% if category.couleur == "#06b6d4" %}selected{% endif %} style="background: #06b6d420; color: #06b6d4; font-weight: 600;">🔷 Cyan</option>
+                                <option value="#84cc16" {% if category.couleur == "#84cc16" %}selected{% endif %} style="background: #84cc1620; color: #84cc16; font-weight: 600;">🟢 Lime</option>
+                                <option value="#f97316" {% if category.couleur == "#f97316" %}selected{% endif %} style="background: #f9731620; color: #f97316; font-weight: 600;">🟧 Orange foncé</option>
+                                <option value="#6366f1" {% if category.couleur == "#6366f1" %}selected{% endif %} style="background: #6366f120; color: #6366f1; font-weight: 600;">🔵 Indigo</option>
                             </select>
                             <span class="form-help">Couleur d'identification</span>
                         </div>
@@ -106,7 +101,7 @@
                             type="text" 
                             id="slug" 
                             name="slug" 
-                            value="{{ category.slug }}"
+                            value="{{ category.slug_url }}"
                             placeholder="Ex: science-fiction"
                         >
                         <span class="form-help">Généré automatiquement si laissé vide</span>
@@ -184,16 +179,17 @@
 
 <script>
 // Live preview update
-const nameInput = document.getElementById('name');
+const nameInput = document.getElementById('nom');
 const descriptionInput = document.getElementById('description');
-const iconSelect = document.getElementById('icon');
-const colorSelect = document.getElementById('color');
+const iconSelect = document.getElementById('icone');
+const colorSelect = document.getElementById('couleur');
 
 const previewName = document.getElementById('preview-name');
 const previewDescription = document.getElementById('preview-description');
 const previewIcon = document.getElementById('preview-icon');
 const previewIconContainer = document.getElementById('preview-icon-container');
 
+// Live preview
 nameInput.addEventListener('input', function() {
     previewName.textContent = this.value || 'Nom de la catégorie';
 });
@@ -212,7 +208,7 @@ colorSelect.addEventListener('change', function() {
     previewIconContainer.style.background = color + '20';
 });
 
-// Auto-generate slug from name
+// Slug
 nameInput.addEventListener('input', function() {
     const slugInput = document.getElementById('slug');
     if (!slugInput.value || slugInput.dataset.autoGenerated) {
@@ -227,10 +223,31 @@ nameInput.addEventListener('input', function() {
     }
 });
 
-document.getElementById('slug').addEventListener('input', function() {
-    if (this.value) {
-        delete this.dataset.autoGenerated;
+function initPreview() {
+    // Nom
+    if (nameInput.value) {
+        previewName.textContent = nameInput.value;
     }
-});
+
+    // Description
+    if (descriptionInput.value) {
+        previewDescription.textContent = descriptionInput.value;
+    }
+
+    // Icône
+    if (iconSelect.value) {
+        previewIcon.className = `fas fa-${iconSelect.value}`;
+    }
+
+    // Couleur
+    if (colorSelect.value) {
+        previewIcon.style.color = colorSelect.value;
+        previewIconContainer.style.background = colorSelect.value + '20';
+    }
+}
+
+// exécuter au chargement de la page
+initPreview();
+
 </script>
 {% endblock %}

@@ -1,0 +1,75 @@
+# ---- PYTHON ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtualenv
+.venv/
+venv/
+env/
+
+# ---- DJANGO ----
+*.log
+*.pot
+*.mo
+*.pyc
+*.db
+*.sqlite3
+db.sqlite3
+*.db-journal
+*.sqlite3-journal
+
+# Django collectstatic
+staticfiles/
+static/
+
+# Media uploads
+media/
+
+# Secret keys / config
+*.env
+.env.*
+config.env
+secrets.yml
+secret_settings.py
+
+# ---- MIGRATIONS ----
+*/migrations/*
+
+# MAIS, on garde :
+!*/migrations/
+!*/migrations/__init__.py
+
+# ---- IDE / Outils ----
+
+# VS Code
+.vscode/
+.code-workspace
+
+# PyCharm
+.idea/
+*.iml
+
+# ---- OS ----
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# ---- Logs ----
+*.log
+
+# ---- Docker ----
+docker-data/
+docker-compose.overrid
