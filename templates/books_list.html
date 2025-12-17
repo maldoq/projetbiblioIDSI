@@ -14,7 +14,7 @@
     </div>
     <div class="card-body">
         <!-- Search & Filter -->
-        <div class="search-bar"> 
+        <div class="search-bar">
             <form method="get" style="display: flex; gap: 12px; width: 100%; flex-wrap: wrap;">
                 <input 
                     type="text" 
@@ -25,16 +25,14 @@
                 >
                 <select name="category" style="width: 200px;">
                     <option value="">Toutes les catégories</option>
-                    <option value="roman" {% if selected_category == "roman" %}selected{% endif %}>Roman</option>
-                    <option value="science" {% if selected_category == "science" %}selected{% endif %}>Science</option>
-                    <option value="histoire" {% if selected_category == "histoire" %}selected{% endif %}>Histoire</option>
-                    <option value="philosophie" {% if selected_category == "philosophie" %}selected{% endif %}>Philosophie</option>
-                    <option value="poesie" {% if selected_category == "poesie" %}selected{% endif %}>Poésie</option>
+                    {% for category in categories %}
+                    <option value="{{category.id}}" {% if selected_category == category.id %}selected{% endif %}>{{category.nom}}</option>
+                    {% endfor %}
                 </select>
                 <select name="status" style="width: 150px;">
                     <option value="">Tous les statuts</option>
                     <option value="available" {% if selected_status == "available" %}selected{% endif %}>Disponible</option>
-                    <option value="borrowed" {% if selected_status == "borrowed" %}selected{% endif %}>Emprunté</option>
+                    <option value="borrowed" {% if selected_status == "borrowed" %}selected{% endif %}>Indisponible</option>
                 </select>
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-search"></i>
@@ -69,24 +67,24 @@
                     <tr>
                         <td><code>{{ book.isbn }}</code></td>
                         <td>
-                            <strong>{{ book.title }}</strong><br>
-                            <small style="color: #6b7280;">{{ book.publisher }}</small>
+                            <strong>{{ book.titre }}</strong><br>
+                            <small style="color: #6b7280;">{{ book.editeur.nom }}</small>
                         </td>
-                        <td>{{ book.author }}</td>
+                        <td>{{ book.auteur.nom_complet }}</td>
                         <td>
                             <span class="badge badge-secondary">
                                 <i class="fas fa-tag"></i>
-                                {{ book.category }}
+                                {{ book.categorie.nom }}
                             </span>
                         </td>
-                        <td class="text-center">{{ book.total_quantity }}</td>
+                        <td class="text-center">{{ book.quantite }}</td>
                         <td class="text-center">
-                            <strong style="color: {% if book.available_quantity > 0 %}#10b981{% else %}#ef4444{% endif %};">
+                            <strong style="color: {% if book.is_available %}#10b981{% else %}#ef4444{% endif %};">
                                 {{ book.available_quantity }}
                             </strong>
                         </td>
                         <td>
-                            {% if book.available_quantity > 0 %}
+                            {% if book.is_available %}
                             <span class="badge badge-success">
                                 <i class="fas fa-check-circle"></i>
                                 Disponible
@@ -94,16 +92,16 @@
                             {% else %}
                             <span class="badge badge-danger">
                                 <i class="fas fa-times-circle"></i>
-                                Emprunté
+                                Indisponible
                             </span>
                             {% endif %}
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <a href="{% url 'books_detail' book.id %}" class="btn btn-sm btn-icon btn-view" title="Voir">
+                                <a href="{% url 'books_edit' book.id %}" class="btn btn-sm btn-icon btn-view" title="Voir">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{% url 'books_form' book.id %}" class="btn btn-sm btn-icon btn-edit" title="Modifier">
+                                <a href="{% url 'books_edit' book.id %}" class="btn btn-sm btn-icon btn-edit" title="Modifier">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <a href="{% url 'books_delete' book.id %}" 
@@ -116,86 +114,7 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
-                        <td><code>978-2-07-061275-8</code></td>
-                        <td><strong>Le Petit Prince</strong><br><small style="color: #6b7280;">Gallimard</small></td>
-                        <td>Antoine de Saint-Exupéry</td>
-                        <td><span class="badge badge-secondary"><i class="fas fa-tag"></i> Roman</span></td>
-                        <td class="text-center">5</td>
-                        <td class="text-center"><strong style="color: #10b981;">3</strong></td>
-                        <td><span class="badge badge-success"><i class="fas fa-check-circle"></i> Disponible</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><code>978-2-07-036822-8</code></td>
-                        <td><strong>1984</strong><br><small style="color: #6b7280;">Gallimard</small></td>
-                        <td>George Orwell</td>
-                        <td><span class="badge badge-secondary"><i class="fas fa-tag"></i> Roman</span></td>
-                        <td class="text-center">4</td>
-                        <td class="text-center"><strong style="color: #10b981;">2</strong></td>
-                        <td><span class="badge badge-success"><i class="fas fa-check-circle"></i> Disponible</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><code>978-2-07-054464-5</code></td>
-                        <td><strong>Harry Potter à l'école des sorciers</strong><br><small style="color: #6b7280;">Gallimard Jeunesse</small></td>
-                        <td>J.K. Rowling</td>
-                        <td><span class="badge badge-secondary"><i class="fas fa-tag"></i> Fantastique</span></td>
-                        <td class="text-center">6</td>
-                        <td class="text-center"><strong style="color: #ef4444;">0</strong></td>
-                        <td><span class="badge badge-danger"><i class="fas fa-times-circle"></i> Emprunté</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><code>978-2-253-00638-3</code></td>
-                        <td><strong>Les Misérables</strong><br><small style="color: #6b7280;">Le Livre de Poche</small></td>
-                        <td>Victor Hugo</td>
-                        <td><span class="badge badge-secondary"><i class="fas fa-tag"></i> Classique</span></td>
-                        <td class="text-center">3</td>
-                        <td class="text-center"><strong style="color: #10b981;">2</strong></td>
-                        <td><span class="badge badge-success"><i class="fas fa-check-circle"></i> Disponible</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td><code>978-2-07-036174-8</code></td>
-                        <td><strong>L'Étranger</strong><br><small style="color: #6b7280;">Gallimard</small></td>
-                        <td>Albert Camus</td>
-                        <td><span class="badge badge-secondary"><i class="fas fa-tag"></i> Philosophie</span></td>
-                        <td class="text-center">4</td>
-                        <td class="text-center"><strong style="color: #10b981;">4</strong></td>
-                        <td><span class="badge badge-success"><i class="fas fa-check-circle"></i> Disponible</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-edit"><i class="fas fa-edit"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
+                    
                     {% endfor %}
                 </tbody>
             </table>

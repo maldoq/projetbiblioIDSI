@@ -61,7 +61,16 @@ class Etudiant(models.Model):
     emailPers = models.CharField(max_length=50, null=False)
     emailInst = models.CharField(max_length=50, null=False)
     numChambre = models.CharField(max_length=5)
+    is_active = models.BooleanField(default=True)
     ecole = models.ForeignKey(Ecole,on_delete=models.CASCADE)
+
+    def active_loans(self):
+        emprunts = Emprunter.objects.filter(etudiant=self).count()
+
+        return emprunts
+    
+    def __str__(self):
+        return f"{self.nom} {self.prenoms} - {self.numChambre} - {self.matricule}"
 
 class Auteur(models.Model):
     nom_complet = models.CharField(max_length=150,null=False)
@@ -109,6 +118,25 @@ class Livre(models.Model):
     editeur = models.ForeignKey(Editeur,on_delete=models.CASCADE)
     auteur = models.ForeignKey(Auteur,on_delete=models.CASCADE)
     categorie = models.ForeignKey(Categorie,on_delete=models.CASCADE)
+
+    def is_available(self):
+        emprunts = Emprunter.objects.filter(
+            livre=self,
+            status="active"
+        ).count()
+
+        return (self.quantite - emprunts) > 0
+    
+    def available_quantity(self):
+        emprunts = Emprunter.objects.filter(
+            livre=self,
+            status="active"
+        ).count()
+
+        return self.quantite - emprunts
+    
+    def __str__(self):
+        return f"{self.isbn} - {self.titre} - {self.quantite} - {self.emplacement}"
 
 class Filiere(models.Model):
     nom = models.CharField(max_length=50,null=False)

@@ -30,7 +30,7 @@
                             type="text" 
                             id="title" 
                             name="title" 
-                            value="{{ book.title }}"
+                            value="{{ book.titre }}"
                             placeholder="Ex: Le Petit Prince"
                             required
                         >
@@ -44,7 +44,7 @@
                             type="text" 
                             id="author" 
                             name="author" 
-                            value="{{ book.author }}"
+                            value="{{ book.auteur.nom_complet }}"
                             placeholder="Ex: Antoine de Saint-Exupéry"
                             required
                         >
@@ -73,7 +73,7 @@
                             type="text" 
                             id="publisher" 
                             name="publisher" 
-                            value="{{ book.publisher }}"
+                            value="{{ book.editeur.nom }}"
                             placeholder="Ex: Gallimard"
                             required
                         >
@@ -87,7 +87,7 @@
                             type="number" 
                             id="publication_year" 
                             name="publication_year" 
-                            value="{{ book.publication_year }}"
+                            value="{{ book.annee_publication }}"
                             placeholder="Ex: 1943"
                             min="1800"
                             max="2025"
@@ -103,18 +103,9 @@
                         </label>
                         <select id="category" name="category" required>
                             <option value="">-- Sélectionner une catégorie --</option>
-                            <option value="Roman" {% if book.category == "Roman" %}selected{% endif %}>Roman</option>
-                            <option value="Science-Fiction" {% if book.category == "Science-Fiction" %}selected{% endif %}>Science-Fiction</option>
-                            <option value="Fantastique" {% if book.category == "Fantastique" %}selected{% endif %}>Fantastique</option>
-                            <option value="Classique" {% if book.category == "Classique" %}selected{% endif %}>Classique</option>
-                            <option value="Philosophie" {% if book.category == "Philosophie" %}selected{% endif %}>Philosophie</option>
-                            <option value="Histoire" {% if book.category == "Histoire" %}selected{% endif %}>Histoire</option>
-                            <option value="Science" {% if book.category == "Science" %}selected{% endif %}>Science</option>
-                            <option value="Poésie" {% if book.category == "Poésie" %}selected{% endif %}>Poésie</option>
-                            <option value="Biographie" {% if book.category == "Biographie" %}selected{% endif %}>Biographie</option>
-                            <option value="Jeunesse" {% if book.category == "Jeunesse" %}selected{% endif %}>Jeunesse</option>
-                            <option value="Bande Dessinée" {% if book.category == "Bande Dessinée" %}selected{% endif %}>Bande Dessinée</option>
-                            <option value="Autre" {% if book.category == "Autre" %}selected{% endif %}>Autre</option>
+                            {% for category in categories %}
+                            <option value="{{category.id}}" {% if book.categorie.id == category.id %}selected{% endif %}>{{category.nom}}</option>
+                            {% endfor %}
                         </select>
                     </div>
 
@@ -124,12 +115,11 @@
                         </label>
                         <select id="language" name="language" required>
                             <option value="">-- Sélectionner --</option>
-                            <option value="Français" {% if book.language == "Français" %}selected{% endif %}>Français</option>
-                            <option value="Anglais" {% if book.language == "Anglais" %}selected{% endif %}>Anglais</option>
-                            <option value="Espagnol" {% if book.language == "Espagnol" %}selected{% endif %}>Espagnol</option>
-                            <option value="Allemand" {% if book.language == "Allemand" %}selected{% endif %}>Allemand</option>
-                            <option value="Arabe" {% if book.language == "Arabe" %}selected{% endif %}>Arabe</option>
-                            <option value="Autre" {% if book.language == "Autre" %}selected{% endif %}>Autre</option>
+                            {% for langue in languages %}
+                            <option value="{{ langue.0 }}" {% if book.langue == langue.0 %}selected{% endif %}>
+                                {{ langue.1 }}
+                            </option>
+                            {% endfor %}
                         </select>
                     </div>
 
@@ -141,7 +131,7 @@
                             type="number" 
                             id="total_quantity" 
                             name="total_quantity" 
-                            value="{{ book.total_quantity }}"
+                            value="{{ book.quantite }}"
                             placeholder="Ex: 5"
                             min="1"
                             required
@@ -157,7 +147,7 @@
                             type="number" 
                             id="pages" 
                             name="pages" 
-                            value="{{ book.pages }}"
+                            value="{{ book.nbre_pages }}"
                             placeholder="Ex: 96"
                             min="1"
                         >
@@ -171,7 +161,7 @@
                             type="text" 
                             id="location" 
                             name="location" 
-                            value="{{ book.location }}"
+                            value="{{ book.emplacement }}"
                             placeholder="Ex: Étagère A - Rayon 3"
                         >
                         <span class="form-help">Position dans la bibliothèque</span>
@@ -189,7 +179,7 @@
                     name="description" 
                     placeholder="Brève description du livre..."
                     rows="4"
-                >{{ book.description }}</textarea>
+                >{{ book.resume }}</textarea>
                 <span class="form-help">Résumé ou informations complémentaires sur le livre</span>
             </div>
 

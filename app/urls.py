@@ -1,4 +1,4 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
 
 urlpatterns = [
@@ -6,16 +6,20 @@ urlpatterns = [
     path('logout/', views.logout_view, name="logout"),
     path('dashboard/', views.dash, name="dashboard"),
     path('books/', views.books_list, name="books_list"),
+    path('books/add/', views.books_form, name="books_form"),
+    path("books/edit/<int:pk>/", views.books_form, name="books_edit"),
+    path("books/delete/<int:pk>/", views.books_delete, name="books_delete"),
     path('loans/', views.loans_list, name="loans_list"),
     path('users/', views.users_list, name="users_list"),
+    path('users/add/', views.users_form, name="users_form"),
+    path('users/edit/<str:pk>/', views.users_form, name="users_edit"),
+    path('users/delete/<str:pk>/', views.users_delete, name="users_delete"),
     path('categories/', views.categories_list, name="categories_list"),
     path("categories/add/", views.categories_form, name="categories_form"),
     path("categories/edit/<int:pk>/", views.categories_form, name="categories_edit"),
     path("categories/delete/<int:pk>/", views.categories_delete, name="categories_delete"),
     path('loans_form/', views.loans_form, name="loans_form"),
     path('returns_form/', views.returns_form, name="returns_form"),
-    path('books_form/', views.books_form, name="books_form"),
-    path('users_form/', views.users_form, name="users_form"),
     path('history/', views.history, name="history"),
     path('history_export/', views.history_export, name="history_export"),
     path('profile/', views.profile, name="profile"),
