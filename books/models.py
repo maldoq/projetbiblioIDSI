@@ -134,6 +134,13 @@ class Livre(models.Model):
         ).count()
 
         return self.quantite - emprunts
+
+    def all_available():
+        all_book_count = 0
+        for book in Livre.objects.all():
+            all_book_count += book.available_quantity()
+        
+        return all_book_count
     
     def __str__(self):
         return f"{self.isbn} - {self.titre} - {self.quantite} - {self.emplacement}"

@@ -47,6 +47,11 @@ def logout_view(request):
 
 @login_required(login_url='signin')
 def dash(request):
+
+    all_book_count = 0
+    for book in Livre.objects.all():
+        all_book_count += book.available_quantity()
+
     recent_activities = []
     # Placeholder si aucune activité récente n'est trouvée
     activities_placeholder = [
@@ -54,7 +59,9 @@ def dash(request):
     ]
     context = {
         "recent_activities": recent_activities,
-        "activities_placeholder": activities_placeholder
+        "activities_placeholder": activities_placeholder,
+        "total_books": all_book_count,
+        "total_users": Etudiant.objects.filter(is_active=True).count()
     }
     return render(request, 'dashboard.html', context)
 
