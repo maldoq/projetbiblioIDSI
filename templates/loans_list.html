@@ -57,6 +57,12 @@
                     <i class="fas fa-search"></i>
                     Rechercher
                 </button>
+                {% if search_query or status_filter != 'all' %}
+                <a href="{% url 'loans_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-times"></i>
+                    Réinitialiser
+                </a>
+                {% endif %}
             </form>
         </div>
 
@@ -80,24 +86,24 @@
                     <tr>
                         <td>#{{ loan.id }}</td>
                         <td>
-                            <strong>{{ loan.user.get_full_name }}</strong><br>
-                            <small style="color: #6b7280;">{{ loan.user.class_name }}</small>
+                            <strong>{{ loan.etudiant.nom }} {{loan.etudiant.prenoms}}</strong><br>
+                            <small style="color: #6b7280;">{{ loan.etudiant.ecole.nom }}</small>
                         </td>
                         <td>
-                            <strong>{{ loan.book.title }}</strong><br>
-                            <small style="color: #6b7280;">{{ loan.book.author }}</small>
+                            <strong>{{ loan.livre.titre }}</strong><br>
+                            <small style="color: #6b7280;">{{ loan.livre.auteur.nom_complet }}</small>
                         </td>
-                        <td>{{ loan.borrow_date|date:"d/m/Y" }}</td>
-                        <td>{{ loan.due_date|date:"d/m/Y" }}</td>
+                        <td>{{ loan.dateEmprunt|date:"d/m/Y" }}</td>
+                        <td>{{ loan.dateRetourPrevu|date:"d/m/Y" }}</td>
                         <td>
-                            {% if loan.return_date %}
-                            {{ loan.return_date|date:"d/m/Y" }}
+                            {% if loan.dateRetourEffectif %}
+                            {{ loan.dateRetourEffectif|date:"d/m/Y" }}
                             {% else %}
                             <span style="color: #9ca3af;">-</span>
                             {% endif %}
                         </td>
                         <td>
-                            {% if loan.return_date %}
+                            {% if loan.dateRetourEffectif %}
                             <span class="badge badge-info">
                                 <i class="fas fa-check"></i> Retourné
                             </span>
@@ -113,14 +119,14 @@
                         </td>
                         <td>
                             <div class="action-buttons">
-                                {% if not loan.return_date %}
+                                {% if not loan.dateRetourEffectif %}
                                 <a href="{% url 'returns_form' %}?loan={{ loan.id }}" 
                                    class="btn btn-sm btn-success" 
                                    title="Marquer comme retourné">
                                     <i class="fas fa-undo"></i>
                                 </a>
                                 {% endif %}
-                                <a href="{% url 'loans_detail' loan.id %}" class="btn btn-sm btn-icon btn-view" title="Voir">
+                                <a href="{% url 'loans_edit' loan.id %}" class="btn btn-sm btn-icon btn-view" title="Voir">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="{% url 'loans_delete' loan.id %}" 
@@ -133,84 +139,6 @@
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
-                        <td>#001</td>
-                        <td><strong>Marie Dupont</strong><br><small style="color: #6b7280;">Terminale A</small></td>
-                        <td><strong>Le Petit Prince</strong><br><small style="color: #6b7280;">Antoine de Saint-Exupéry</small></td>
-                        <td>25/10/2025</td>
-                        <td>08/11/2025</td>
-                        <td><span style="color: #9ca3af;">-</span></td>
-                        <td><span class="badge badge-success"><i class="fas fa-clock"></i> En cours</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="#" class="btn btn-sm btn-success"><i class="fas fa-undo"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#002</td>
-                        <td><strong>Jean Martin</strong><br><small style="color: #6b7280;">Première B</small></td>
-                        <td><strong>1984</strong><br><small style="color: #6b7280;">George Orwell</small></td>
-                        <td>20/10/2025</td>
-                        <td>03/11/2025</td>
-                        <td>31/10/2025</td>
-                        <td><span class="badge badge-info"><i class="fas fa-check"></i> Retourné</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#003</td>
-                        <td><strong>Lucas Petit</strong><br><small style="color: #6b7280;">Terminale D</small></td>
-                        <td><strong>Le Seigneur des Anneaux</strong><br><small style="color: #6b7280;">J.R.R. Tolkien</small></td>
-                        <td>10/10/2025</td>
-                        <td>24/10/2025</td>
-                        <td><span style="color: #9ca3af;">-</span></td>
-                        <td><span class="badge badge-danger"><i class="fas fa-exclamation-circle"></i> En retard</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="#" class="btn btn-sm btn-success"><i class="fas fa-undo"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#004</td>
-                        <td><strong>Sophie Bernard</strong><br><small style="color: #6b7280;">Seconde C</small></td>
-                        <td><strong>Harry Potter - Tome 1</strong><br><small style="color: #6b7280;">J.K. Rowling</small></td>
-                        <td>28/10/2025</td>
-                        <td>11/11/2025</td>
-                        <td><span style="color: #9ca3af;">-</span></td>
-                        <td><span class="badge badge-success"><i class="fas fa-clock"></i> En cours</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="#" class="btn btn-sm btn-success"><i class="fas fa-undo"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>#005</td>
-                        <td><strong>Emma Dubois</strong><br><small style="color: #6b7280;">Première A</small></td>
-                        <td><strong>Les Misérables</strong><br><small style="color: #6b7280;">Victor Hugo</small></td>
-                        <td>15/10/2025</td>
-                        <td>29/10/2025</td>
-                        <td>30/10/2025</td>
-                        <td><span class="badge badge-info"><i class="fas fa-check"></i> Retourné</span></td>
-                        <td>
-                            <div class="action-buttons">
-                                <a href="#" class="btn btn-sm btn-icon btn-view"><i class="fas fa-eye"></i></a>
-                                <a href="#" class="btn btn-sm btn-icon btn-delete"><i class="fas fa-trash"></i></a>
-                            </div>
-                        </td>
-                    </tr>
                     {% endfor %}
                 </tbody>
             </table>

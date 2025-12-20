@@ -5,6 +5,7 @@ from django.db import models
 from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.core.validators import RegexValidator
+from django.utils import timezone
 
 current_year = datetime.datetime.now().year
 
@@ -135,12 +136,15 @@ class Livre(models.Model):
 
         return self.quantite - emprunts
 
-    def all_available():
-        all_book_count = 0
-        for book in Livre.objects.all():
-            all_book_count += book.available_quantity()
-        
-        return all_book_count
+    @classmethod
+    def disponibles(cls):
+        livres_disponibles = []
+
+        for livre in cls.objects.all():
+            if livre.is_available():
+                livres_disponibles.append(livre)
+
+        return livres_disponibles
     
     def __str__(self):
         return f"{self.isbn} - {self.titre} - {self.quantite} - {self.emplacement}"
@@ -152,10 +156,26 @@ class Filiere(models.Model):
 class Emprunter(models.Model):
     dateEmprunt = models.DateField()
     dateRetourPrevu = models.DateField()
-    dateRetourEffectif = models.DateField()
-    duree = models.TimeField()
+    dateRetourEffectif = models.DateField(null=True,blank=True)
     etudiant= models.ForeignKey(Etudiant,on_delete=models.CASCADE)
     livre = models.ForeignKey(Livre,on_delete=models.CASCADE)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES)
     etat_livre = models.CharField(max_length=50, null=True)
     observation =  models.CharField(max_length=20, null=True)
+
+    def is_overdue(self):
+        today = timezone.now().date()
+
+        if self.dateRetourEffectif:
+            return self.dateRetourEffectif > self.dateRetourPrevu
+
+        return today > self.dateRetourPrevu
+    
+    def duree_jours(self):
+        return (self.dateRetourPrevu - self.dateEmprunt).days
+    
+    def duree_semaines(self):
+        return self.duree_jours() // 7
+    
+    def __str__(self):
+        return f"Emprunt n°{self.id} | {self.etudiant.nom} {self.livre.titre}"

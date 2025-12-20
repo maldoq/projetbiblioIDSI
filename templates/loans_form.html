@@ -29,15 +29,10 @@
                         <select id="user" name="user" required>
                             <option value="">-- Sélectionner un utilisateur --</option>
                             {% for user in users %}
-                            <option value="{{ user.id }}" {% if loan.user.id == user.id %}selected{% endif %}>
-                                {{ user.get_full_name }} - {{ user.class_name }} ({{ user.student_id }})
+                            <option value="{{ user.matricule }}" {% if loan.etudiant.matricule == user.matricule %}selected{% endif %}>
+                                {{ user.nom }} {{user.prenoms}} - {{ user.ecole.nom }} ({{ user.numChambre }})
                             </option>
                             {% empty %}
-                            <option value="1">Marie Dupont - Terminale A (ETU2025001)</option>
-                            <option value="2">Jean Martin - Première B (ETU2025002)</option>
-                            <option value="3">Sophie Bernard - Seconde C (ETU2025003)</option>
-                            <option value="4">Lucas Petit - Terminale D (ETU2025004)</option>
-                            <option value="5">Emma Dubois - Première A (ETU2025005)</option>
                             {% endfor %}
                         </select>
                         <span class="form-help">Choisissez l'utilisateur qui emprunte le livre</span>
@@ -50,15 +45,10 @@
                         <select id="book" name="book" required>
                             <option value="">-- Sélectionner un livre --</option>
                             {% for book in available_books %}
-                            <option value="{{ book.id }}" {% if loan.book.id == book.id %}selected{% endif %}>
-                                {{ book.title }} - {{ book.author }} (Dispo: {{ book.available_quantity }})
+                            <option value="{{ book.isbn }}" {% if loan.livre.isbn == book.isbn %}selected{% endif %}>
+                                {{ book.titre }} - {{ book.auteur.nom_complet }} (Dispo: {{ book.available_quantity }})
                             </option>
                             {% empty %}
-                            <option value="1">Le Petit Prince - Antoine de Saint-Exupéry (Dispo: 3)</option>
-                            <option value="2">1984 - George Orwell (Dispo: 2)</option>
-                            <option value="3">Les Misérables - Victor Hugo (Dispo: 2)</option>
-                            <option value="4">L'Étranger - Albert Camus (Dispo: 4)</option>
-                            <option value="5">Le Seigneur des Anneaux - J.R.R. Tolkien (Dispo: 1)</option>
                             {% endfor %}
                         </select>
                         <span class="form-help">Seuls les livres disponibles sont affichés</span>
@@ -72,7 +62,7 @@
                             type="date" 
                             id="borrow_date" 
                             name="borrow_date" 
-                            value="{{ loan.borrow_date|date:'Y-m-d'|default:today }}"
+                            value="{{ loan.dateEmprunt|date:'Y-m-d'|default:today }}"
                             required
                         >
                     </div>
@@ -88,7 +78,7 @@
                             type="date" 
                             id="due_date" 
                             name="due_date" 
-                            value="{{ loan.due_date|date:'Y-m-d' }}"
+                            value="{{ loan.dateRetourPrevu|date:'Y-m-d' }}"
                             required
                         >
                         <span class="form-help">Date limite de retour du livre</span>
@@ -100,10 +90,14 @@
                         </label>
                         <select id="loan_duration" name="loan_duration">
                             <option value="">-- Personnalisée --</option>
+                            {% if loan.duree_jours %}
+                            <option value="{{loan.duree_jours}}" selected>{{loan.duree_jours}} jours ({{loan.duree_semaines}} semaine)</option>
+                            {% else %}
                             <option value="7">7 jours (1 semaine)</option>
                             <option value="14" selected>14 jours (2 semaines)</option>
                             <option value="21">21 jours (3 semaines)</option>
                             <option value="30">30 jours (1 mois)</option>
+                            {% endif %}
                         </select>
                         <span class="form-help">Calcule automatiquement la date de retour</span>
                     </div>
@@ -117,7 +111,7 @@
                             name="notes" 
                             placeholder="Remarques particulières sur cet emprunt..."
                             rows="5"
-                        >{{ loan.notes }}</textarea>
+                        >{{ loan.observation }}</textarea>
                     </div>
                 </div>
             </div>

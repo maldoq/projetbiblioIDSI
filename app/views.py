@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from django.db.models import Q
 from django.core.paginator import Paginator
 
-from books.models import Categorie, Etudiant, Ecole, Editeur, Auteur, Livre,ICONE_CHOICES,LANGUAGES_CHOICES
+from books.models import Categorie, Emprunter, Etudiant, Ecole, Editeur, Auteur, Livre,ICONE_CHOICES,LANGUAGES_CHOICES
 
 # Authentification
 
@@ -333,8 +333,8 @@ def users_form(request, pk=None):
     })
 
 @login_required(login_url='signin')
-def users_delete(pk):
-    user = Etudiant.objects.get(matricule=pk)
+def users_delete(request,pk):
+    user = Etudiant.objects.get(pk=pk)
     user.delete()
     return redirect("users_list")
 
@@ -344,14 +344,103 @@ def users_delete(pk):
 
 @login_required(login_url='signin')
 def loans_list(request):
-    return render(request, 'loans_list.html')
+    emprunts = Emprunter.objects.select_related(
+        "etudiant",
+        "livre",
+        "livre__auteur"
+    )
+
+    search = request.GET.get("search", "")
+    status = request.GET.get("status", "all")
+
+    # 🔍 SEARCH
+    if search:
+        emprunts = emprunts.filter(
+            Q(etudiant__nom__icontains=search) |
+            Q(livre__titre__icontains=search) |
+            Q(livre__auteur__nom_complet__icontains=search)
+        )
+
+    today = timezone.now().date()
+
+    # 🎯 FILTER STATUS
+    if status == "active":
+        emprunts = emprunts.filter(
+            dateRetourEffectif__isnull=True,
+            dateRetourPrevu__gte=today
+        )
+
+    elif status == "late":
+        emprunts = emprunts.filter(
+            dateRetourEffectif__isnull=True,
+            dateRetourPrevu__lt=today
+        )
+
+    elif status == "returned":
+        emprunts = emprunts.filter(
+            dateRetourEffectif__isnull=False
+        )
+
+    # 📄 PAGINATION
+    paginator = Paginator(emprunts.order_by("-dateEmprunt"), 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "loans_list.html", {
+        "loans": page_obj,
+        "search_query": search,
+        "status_filter": status,
+        "page_obj": page_obj,
+        "is_paginated": True,
+    })
 
 @login_required(login_url='signin')
-def loans_form(request):
+def loans_form(request, pk=None):
+    # Mode de visualisation
+    loan = None
+    if pk:
+        loan = get_object_or_404(Emprunter,pk=pk)
+
+    if request.method == "POST":
+        etudiant_matri = request.POST.get("user")
+        livre_isbn = request.POST.get("book")
+        dateEmprunt = request.POST.get("borrow_date")
+        dateRetourPrevu = request.POST.get("due_date")
+        observation = request.POST.get("notes")
+
+        etudiant = get_object_or_404(Etudiant, matricule=etudiant_matri)
+        livre = get_object_or_404(Livre, isbn=livre_isbn)
+
+        if not loan:
+            # Création
+            Emprunter.objects.create(
+                etudiant = etudiant,
+                livre = livre,
+                dateEmprunt = dateEmprunt,
+                dateRetourPrevu = dateRetourPrevu,
+                observation = observation,
+                status = "active"
+            )
+
+        return redirect("loans_list")
+
     context = {
-        'today': timezone.now().date()
+        "loan":loan,
+        'today': timezone.now().date(),
+        'available_books': Livre.disponibles(),
+        "users": Etudiant.objects.filter(is_active=True)
     }
     return render(request, 'loans_form.html', context)
+
+@login_required(login_url='signin')
+def returns_form(request, pk=None):
+    return render(request, 'returns_form.html')
+
+@login_required(login_url='signin')
+def loans_delete(request, pk):
+    loan = get_object_or_404(Emprunter, pk=pk)
+    loan.delete()
+    return redirect("loans_list")
 
 
 
@@ -364,10 +453,6 @@ def history(request):
 @login_required(login_url='signin')
 def profile(request):
     return render(request, 'profile.html')
-
-@login_required(login_url='signin')
-def returns_form(request):
-    return render(request, 'returns_form.html')
 
 @login_required(login_url='signin')
 def history_export(request):
