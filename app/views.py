@@ -7,7 +7,7 @@ from django.utils.text import slugify
 from django.db.models import Q
 from django.core.paginator import Paginator
 
-from books.models import Categorie, Emprunter, Etudiant, Ecole, Editeur, Auteur, Livre,ICONE_CHOICES,LANGUAGES_CHOICES
+from books.models import Categorie, Emprunter, Etudiant, Ecole, Editeur, Auteur, Livre,ICONE_CHOICES,LANGUAGES_CHOICES,ETAT_LIVRE_CHOICES
 
 # Authentification
 
@@ -61,6 +61,8 @@ def dash(request):
         "recent_activities": recent_activities,
         "activities_placeholder": activities_placeholder,
         "total_books": all_book_count,
+        "active_loans": Emprunter.objects.filter(status="active").count(),
+        "late_returns": Emprunter.objects.filter(status="returned").count(),
         "total_users": Etudiant.objects.filter(is_active=True).count()
     }
     return render(request, 'dashboard.html', context)
@@ -434,7 +436,29 @@ def loans_form(request, pk=None):
 
 @login_required(login_url='signin')
 def returns_form(request, pk=None):
-    return render(request, 'returns_form.html')
+
+    if request.method == "POST":
+        loan_id = request.POST.get("loan")
+        dateRetour = request.POST.get("return_date")
+        etat = request.POST.get("condition")
+        notes = request.POST.get("notes")
+
+        loan = get_object_or_404(Emprunter,id=loan_id)
+
+        loan.dateRetourEffectif = dateRetour
+        loan.etat_livre = etat
+        loan.observation += " \n" + notes
+        loan.status = "returned"
+        loan.save()
+
+        return redirect("loans_list")
+
+    emprunts = Emprunter.objects.filter(status__in=["late","active"])
+    context = {
+        "active_loans":emprunts,
+        "etats": ETAT_LIVRE_CHOICES,
+    }
+    return render(request, 'returns_form.html',context)
 
 @login_required(login_url='signin')
 def loans_delete(request, pk):

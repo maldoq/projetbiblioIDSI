@@ -30,27 +30,16 @@
                             <option value="">-- Choisir un emprunt actif --</option>
                             {% for loan in active_loans %}
                             <option value="{{ loan.id }}" 
-                                    data-user="{{ loan.user.get_full_name }}"
-                                    data-book="{{ loan.book.title }}"
-                                    data-borrow="{{ loan.borrow_date|date:'d/m/Y' }}"
-                                    data-due="{{ loan.due_date|date:'d/m/Y' }}"
+                                    data-user="{{ loan.etudiant.nom }} {{ loan.etudiant.prenoms }}"
+                                    data-book="{{ loan.livre.titre }}"
+                                    data-borrow="{{ loan.dateEmprunt|date:'d/m/Y' }}"
+                                    data-due="{{ loan.dateRetourPrevu|date:'d/m/Y' }}"
                                     data-overdue="{{ loan.is_overdue|yesno:'true,false' }}">
-                                {{ loan.user.get_full_name }} - {{ loan.book.title }} 
+                                {{ loan.etudiant.nom }} {{ loan.etudiant.prenoms }} - {{ loan.livre.titre }} 
                                 {% if loan.is_overdue %}(EN RETARD){% endif %}
                             </option>
                             {% empty %}
-                            <option value="1" data-user="Marie Dupont" data-book="Le Petit Prince" 
-                                    data-borrow="25/10/2025" data-due="08/11/2025" data-overdue="false">
-                                Marie Dupont - Le Petit Prince
-                            </option>
-                            <option value="3" data-user="Lucas Petit" data-book="Le Seigneur des Anneaux" 
-                                    data-borrow="10/10/2025" data-due="24/10/2025" data-overdue="true">
-                                Lucas Petit - Le Seigneur des Anneaux (EN RETARD)
-                            </option>
-                            <option value="4" data-user="Sophie Bernard" data-book="Harry Potter - Tome 1" 
-                                    data-borrow="28/10/2025" data-due="11/11/2025" data-overdue="false">
-                                Sophie Bernard - Harry Potter - Tome 1
-                            </option>
+                            <option value="">-- Aucun emprunt actif --</option>
                             {% endfor %}
                         </select>
                         <span class="form-help">Seuls les emprunts non retournés sont affichés</span>
@@ -76,11 +65,9 @@
                         </label>
                         <select id="condition" name="condition" required>
                             <option value="">-- Évaluer l'état --</option>
-                            <option value="excellent">Excellent - Comme neuf</option>
-                            <option value="good" selected>Bon - Légères traces d'usage</option>
-                            <option value="fair">Acceptable - Quelques dégradations</option>
-                            <option value="poor">Mauvais - Nécessite réparation</option>
-                            <option value="damaged">Endommagé - Non utilisable</option>
+                            {% for id,etat in etats %}
+                            <option value="{{id}}">{{etat}}</option>
+                            {% endfor %}
                         </select>
                     </div>
                 </div>

@@ -48,6 +48,14 @@ STATUS_CHOICES = [
     ("returned","Retourné"),
 ]
 
+ETAT_LIVRE_CHOICES = [
+    ("neuf","Excellent - Comme neuf"),
+    ("good","Bon - Légère trace d'usage"),
+    ("well","Acceptable - Quelques dégradations"),
+    ("bad","Mauvais - Nécessite réparation"),
+    ("damaged","Endommagé - Non utilisable"),
+]
+
 # Create your models here.
 class Ecole(models.Model):
     nom = models.CharField(max_length=50,null=False)
@@ -160,7 +168,7 @@ class Emprunter(models.Model):
     etudiant= models.ForeignKey(Etudiant,on_delete=models.CASCADE)
     livre = models.ForeignKey(Livre,on_delete=models.CASCADE)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES)
-    etat_livre = models.CharField(max_length=50, null=True)
+    etat_livre = models.CharField(max_length=50, null=True, choices=ETAT_LIVRE_CHOICES)
     observation =  models.CharField(max_length=20, null=True)
 
     def is_overdue(self):

@@ -11,7 +11,7 @@
             <i class="fas fa-book"></i>
         </div>
         <div class="stat-details">
-            <h4>{{ total_books|default:"245" }}</h4>
+            <h4>{{ total_books }}</h4>
             <p>Livres disponibles</p>
         </div>
     </div>
@@ -21,7 +21,7 @@
             <i class="fas fa-check-circle"></i>
         </div>
         <div class="stat-details">
-            <h4>{{ active_loans|default:"32" }}</h4>
+            <h4>{{ active_loans }}</h4>
             <p>Emprunts en cours</p>
         </div>
     </div>
@@ -31,7 +31,7 @@
             <i class="fas fa-exclamation-triangle"></i>
         </div>
         <div class="stat-details">
-            <h4>{{ late_returns|default:"5" }}</h4>
+            <h4>{{ late_returns }}</h4>
             <p>Retours en retard</p>
         </div>
     </div>
@@ -41,7 +41,7 @@
             <i class="fas fa-users"></i>
         </div>
         <div class="stat-details">
-            <h4>{{ total_users|default:"128" }}</h4>
+            <h4>{{ total_users }}</h4>
             <p>Utilisateurs actifs</p>
         </div>
     </div>
