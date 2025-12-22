@@ -1,3 +1,5 @@
+import csv
+
 from django.utils import timezone
 from django.shortcuts import render,redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -6,8 +8,9 @@ from django.contrib import messages
 from django.utils.text import slugify
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.http import HttpResponse
 
-from books.models import Categorie, Emprunter, Etudiant, Ecole, Editeur, Auteur, Livre,ICONE_CHOICES,LANGUAGES_CHOICES,ETAT_LIVRE_CHOICES
+from books.models import ActivityLog, Categorie, Emprunter, Etudiant, Ecole, Editeur, Auteur, Livre,ICONE_CHOICES,LANGUAGES_CHOICES,ETAT_LIVRE_CHOICES
 
 # Authentification
 
@@ -55,14 +58,14 @@ def dash(request):
     recent_activities = []
     # Placeholder si aucune activité récente n'est trouvée
     activities_placeholder = [
-        {"message": "Aucune activité récente", "date": ""}
+        
     ]
     context = {
         "recent_activities": recent_activities,
         "activities_placeholder": activities_placeholder,
         "total_books": all_book_count,
         "active_loans": Emprunter.objects.filter(status="active").count(),
-        "late_returns": Emprunter.objects.filter(status="returned").count(),
+        "late_returns": Emprunter.objects.filter(status="late").count(),
         "total_users": Etudiant.objects.filter(is_active=True).count()
     }
     return render(request, 'dashboard.html', context)
@@ -156,9 +159,16 @@ def books_form(request, pk=None):
             book.auteur = auteur_obj
             book.categorie = categorie
             book.save()
+
+            ActivityLog.objects.create(
+                action_type="update",
+                title=f"Modification du livre {book.titre}",
+                description=f"« {book.titre} » ({book.quantite} exemplaires)",
+                performed_by=request.user
+            )
         else:
             # Création
-            Livre.objects.create(
+            livre = Livre.objects.create(
                 isbn = isbn,
                 titre = titre,
                 langue = langue,
@@ -171,6 +181,14 @@ def books_form(request, pk=None):
                 auteur = auteur_obj,
                 categorie = categorie
             )
+
+            ActivityLog.objects.create(
+                action_type="add_book",
+                title="Nouveau livre ajouté",
+                description=f"« {livre.titre} » ({livre.quantite} exemplaires)",
+                performed_by=request.user
+            )
+
         return redirect("books_list")
 
 
@@ -182,8 +200,14 @@ def books_form(request, pk=None):
     })
 
 @login_required(login_url='signin')
-def books_delete(pk):
+def books_delete(request,pk):
     book = get_object_or_404(Livre, pk=pk)
+    ActivityLog.objects.create(
+        action_type="delete",
+        title=f"Suppression du livre {book.titre}",
+        description=f"« {book.titre} » ({book.quantite} exemplaires)",
+        performed_by=request.user
+    )
     book.delete()
     return redirect("books_list")
 
@@ -221,15 +245,29 @@ def categories_form(request, pk=None):
             category.slug_url = slugify(nom)
             category.is_active = active
             category.save()
+
+            ActivityLog.objects.create(
+                action_type="update",
+                title=f"Modification de la catégorie {category.nom}",
+                description=f"« {category.nom} » modifiée",
+                performed_by=request.user
+            )
         else:
             # Création
-            Categorie.objects.create(
+            category = Categorie.objects.create(
                 nom=nom,
                 description=description,
                 icone=icone,
                 couleur=couleur,
                 is_active=active,
                 slug_url=slugify(nom)
+            )
+
+            ActivityLog.objects.create(
+                action_type="add_book",
+                title="Nouvelle catégorie ajoutée",
+                description=f"« {category.nom} » ajoutée",
+                performed_by=request.user
             )
 
         return redirect("categories_list")
@@ -240,8 +278,14 @@ def categories_form(request, pk=None):
     })
 
 @login_required(login_url='signin')
-def categories_delete(pk):
+def categories_delete(request,pk):
     category = get_object_or_404(Categorie, pk=pk)
+    ActivityLog.objects.create(
+        action_type="delete",
+        title=f"Suppression de la catégorie {category.nom}",
+        description=f"« {category.nom} » supprimé",
+        performed_by=request.user
+    )
     category.delete()
     return redirect("categories_list")
 
@@ -312,9 +356,15 @@ def users_form(request, pk=None):
             user.ecole = ecole_obj
             user.is_active = is_active
             user.save()
+            ActivityLog.objects.create(
+                action_type="update",
+                title=f"Modification de la catégorie {category.nom}",
+                description=f"« {category.nom} » modifiée",
+                performed_by=request.user
+            )
         else:
             # Création
-            Etudiant.objects.create(
+            etudiant = Etudiant.objects.create(
                 matricule = matricule,
                 nom = nom,
                 prenoms = prenoms,
@@ -327,6 +377,13 @@ def users_form(request, pk=None):
                 is_active = is_active
 
             )
+
+            ActivityLog.objects.create(
+                action_type="add_user",
+                title="Nouvel étudiant ajouté",
+                description=f"« {etudiant.nom} {etudiant.prenoms} » ajouté",
+                performed_by=request.user
+            )
         return redirect("users_list")
 
 
@@ -337,6 +394,12 @@ def users_form(request, pk=None):
 @login_required(login_url='signin')
 def users_delete(request,pk):
     user = Etudiant.objects.get(pk=pk)
+    ActivityLog.objects.create(
+        action_type="delete",
+        title=f"Suppression de l'utilisateur {user.nom} {user.prenoms}",
+        description=f"« {user.nom} {user.prenoms} » supprimé",
+        performed_by=request.user
+    )
     user.delete()
     return redirect("users_list")
 
@@ -424,6 +487,14 @@ def loans_form(request, pk=None):
                 status = "active"
             )
 
+            ActivityLog.objects.create(
+                action_type="loan",
+                title="Nouvel emprunt",
+                description=f"{etudiant.nom} {etudiant.prenoms} a emprunté « {livre.titre} »",
+                user=str(etudiant.nom + ' ' + etudiant.prenoms),
+                performed_by=request.user
+            )
+
         return redirect("loans_list")
 
     context = {
@@ -435,7 +506,7 @@ def loans_form(request, pk=None):
     return render(request, 'loans_form.html', context)
 
 @login_required(login_url='signin')
-def returns_form(request, pk=None):
+def returns_form(request):
 
     if request.method == "POST":
         loan_id = request.POST.get("loan")
@@ -451,6 +522,14 @@ def returns_form(request, pk=None):
         loan.status = "returned"
         loan.save()
 
+        ActivityLog.objects.create(
+            action_type="return",
+            title="Retour de livre",
+            description=f"{loan.etudiant.nom} a retourné « {loan.livre.titre} »",
+            user=str(loan.etudiant),
+            performed_by=request.user
+        )
+
         return redirect("loans_list")
 
     emprunts = Emprunter.objects.filter(status__in=["late","active"])
@@ -463,6 +542,12 @@ def returns_form(request, pk=None):
 @login_required(login_url='signin')
 def loans_delete(request, pk):
     loan = get_object_or_404(Emprunter, pk=pk)
+    ActivityLog.objects.create(
+        action_type="delete",
+        title=f"Suppression de l'emprunt de {loan.etudiant.nom} {loan.etudiant.prenoms} du livre {loan.livre.titre}",
+        description=f"« emprunt numero {loan.id} » supprimé",
+        performed_by=request.user
+    )
     loan.delete()
     return redirect("loans_list")
 
@@ -470,17 +555,70 @@ def loans_delete(request, pk):
 
 # Gestion du profil des utilisateur
 
-@login_required(login_url='signin')
+@login_required(login_url="signin")
 def history(request):
-    return render(request, 'history.html')
+    activities = ActivityLog.objects.all().order_by("-timestamp")
+
+    search = request.GET.get("search", "")
+    action_type = request.GET.get("action_type", "")
+    date_from = request.GET.get("date_from", "")
+    date_to = request.GET.get("date_to", "")
+
+    if search:
+        activities = activities.filter(
+            Q(title__icontains=search) |
+            Q(description__icontains=search) |
+            Q(user__icontains=search)
+        )
+
+    if action_type:
+        activities = activities.filter(action_type=action_type)
+
+    if date_from:
+        activities = activities.filter(timestamp__date__gte=date_from)
+
+    if date_to:
+        activities = activities.filter(timestamp__date__lte=date_to)
+
+    paginator = Paginator(activities, 10)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "history.html", {
+        "activities": page_obj,
+        "search_query": search,
+        "action_type": action_type,
+        "date_from": date_from,
+        "date_to": date_to,
+        "page_obj": page_obj,
+        "is_paginated": True,
+    })
 
 @login_required(login_url='signin')
 def profile(request):
     return render(request, 'profile.html')
 
-@login_required(login_url='signin')
+@login_required(login_url="signin")
 def history_export(request):
-    pass
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="historique.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        "Date", "Action", "Titre", "Description", "Utilisateur", "Effectué par"
+    ])
+
+    for act in ActivityLog.objects.all().order_by("-timestamp"):
+        writer.writerow([
+            act.timestamp.strftime("%d/%m/%Y %H:%M"),
+            act.action_type,
+            act.title,
+            act.description,
+            act.user,
+            act.performed_by.username if act.performed_by else ""
+        ])
+
+    return response
 
 @login_required(login_url='signin')
 def change_password(request):

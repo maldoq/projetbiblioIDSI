@@ -187,3 +187,39 @@ class Emprunter(models.Model):
     
     def __str__(self):
         return f"Emprunt n°{self.id} | {self.etudiant.nom} {self.livre.titre}"
+    
+
+class ActivityLog(models.Model):
+    ACTION_CHOICES = [
+        ("loan", "Emprunt"),
+        ("return", "Retour"),
+        ("add_book", "Ajout livre"),
+        ("add_user", "Ajout utilisateur"),
+        ("update", "Modification"),
+        ("delete", "Suppression"),
+    ]
+
+    action_type = models.CharField(max_length=20, choices=ACTION_CHOICES)
+    title = models.CharField(max_length=150)
+    description = models.TextField()
+
+    user = models.CharField(max_length=150, null=True, blank=True)  
+    performed_by = models.ForeignKey(
+        "auth.User", on_delete=models.SET_NULL, null=True, blank=True
+    )
+
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def icon(self):
+        return {
+            "loan": "arrow-right",
+            "return": "arrow-left",
+            "add_book": "book-medical",
+            "add_user": "user-plus",
+            "update": "edit",
+            "delete": "trash",
+        }.get(self.action_type, "info-circle")
+
+    def __str__(self):
+        return f"{self.action_type} - {self.title}"
+
