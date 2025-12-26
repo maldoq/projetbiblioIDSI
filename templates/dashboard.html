@@ -71,57 +71,33 @@
                     {% for activity in recent_activities|default:activities_placeholder %}
                     <tr>
                         <td>
-                            <strong>{{ activity.user_name }}</strong><br>
-                            <small style="color: #6b7280;">{{ activity.user_class }}</small>
+                            <strong>{{ activity.etudiant.nom }} {{ activity.etudiant.prenoms }}</strong><br>
+                            <small style="color: #6b7280;">{{ activity.etudiant.ecole.nom }}</small>
                         </td>
-                        <td>{{ activity.book_title }}</td>
+                        <td>{{ activity.livre.titre }}</td>
+                        {% if activity.is_overdue %}
                         <td>
-                            <i class="fas fa-{{ activity.action_icon }}"></i>
-                            {{ activity.action }}
+                            <i class="fas fa-clock"></i>
+                            Rappel
                         </td>
-                        <td>{{ activity.date }}</td>
+                        <td>{{ activity.dateEmprunt }}</td>
                         <td>
-                            <span class="badge badge-{{ activity.status_class }}">
-                                {{ activity.status }}
+                            <span class="badge badge-warning">
+                                En retard
                             </span>
                         </td>
+                        {% elif activity.status == "returned" %}
+                        <td><i class="fas fa-arrow-left"></i> Retour</td>
+                        <td>{{ activity.dateEmprunt }}</td>
+                        <td><span class="badge badge-info">Rendu</span></td>
+                        {% else %}
+                        <td><i class="fas fa-arrow-right"></i> Emprunt</td>
+                        <td>{{ activity.dateEmprunt }}</td>
+                        <td><span class="badge badge-success">Validé</span></td>
+                        {% endif %}
+                        
                     </tr>
                     {% empty %}
-                    <tr>
-                        <td>Marie Dupont</td>
-                        <td>Le Petit Prince</td>
-                        <td><i class="fas fa-arrow-right"></i> Emprunt</td>
-                        <td>31/10/2025 10:30</td>
-                        <td><span class="badge badge-success">Validé</span></td>
-                    </tr>
-                    <tr>
-                        <td>Jean Martin</td>
-                        <td>1984 - George Orwell</td>
-                        <td><i class="fas fa-arrow-left"></i> Retour</td>
-                        <td>31/10/2025 09:15</td>
-                        <td><span class="badge badge-info">Rendu</span></td>
-                    </tr>
-                    <tr>
-                        <td>Sophie Bernard</td>
-                        <td>Harry Potter - Tome 1</td>
-                        <td><i class="fas fa-arrow-right"></i> Emprunt</td>
-                        <td>30/10/2025 16:45</td>
-                        <td><span class="badge badge-success">Validé</span></td>
-                    </tr>
-                    <tr>
-                        <td>Lucas Petit</td>
-                        <td>Le Seigneur des Anneaux</td>
-                        <td><i class="fas fa-clock"></i> Rappel</td>
-                        <td>30/10/2025 14:20</td>
-                        <td><span class="badge badge-warning">En retard</span></td>
-                    </tr>
-                    <tr>
-                        <td>Emma Dubois</td>
-                        <td>Les Misérables</td>
-                        <td><i class="fas fa-arrow-left"></i> Retour</td>
-                        <td>30/10/2025 11:00</td>
-                        <td><span class="badge badge-info">Rendu</span></td>
-                    </tr>
                     {% endfor %}
                 </tbody>
             </table>

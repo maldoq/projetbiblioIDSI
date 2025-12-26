@@ -57,9 +57,7 @@ def dash(request):
 
     recent_activities = []
     # Placeholder si aucune activité récente n'est trouvée
-    activities_placeholder = [
-        
-    ]
+    activities_placeholder = Emprunter.objects.all().order_by("-dateEmprunt")[:6]
     context = {
         "recent_activities": recent_activities,
         "activities_placeholder": activities_placeholder,
