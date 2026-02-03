@@ -54,13 +54,11 @@
                     value="{{ search_query }}"
                 >
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i>
-                    Rechercher
+                    <i class="fas fa-search"></i> Rechercher
                 </button>
                 {% if search_query or status_filter != 'all' %}
                 <a href="{% url 'loans_list' %}" class="btn btn-secondary">
-                    <i class="fas fa-times"></i>
-                    Réinitialiser
+                    <i class="fas fa-times"></i> Réinitialiser
                 </a>
                 {% endif %}
             </form>
@@ -68,38 +66,48 @@
 
         <!-- Loans Table -->
         <div class="table-responsive">
-            <table>
+            <table class="modern-table">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Utilisateur</th>
                         <th>Livre</th>
                         <th>Date d'emprunt</th>
-                        <th>Date de retour prévue</th>
-                        <th>Date de retour réelle</th>
+                        <th>Retour prévu</th>
+                        <th>Retour effectif</th>
                         <th>Statut</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for loan in loans %}
-                    <tr>
+                    <tr class="table-row-animate">
                         <td>#{{ loan.id }}</td>
                         <td>
-                            <strong>{{ loan.etudiant.nom }} {{loan.etudiant.prenoms}}</strong><br>
-                            <small style="color: #6b7280;">{{ loan.etudiant.ecole.nom }}</small>
+                            <div class="user-cell">
+                                <div class="user-avatar-small">
+                                    {{ loan.etudiant.nom.0 }}{{ loan.etudiant.prenoms.0 }}
+                                </div>
+                                <div class="user-info-cell">
+                                    <strong>{{ loan.etudiant.nom }} {{ loan.etudiant.prenoms }}</strong><br>
+                                    <small class="text-muted">{{ loan.etudiant.ecole.nom }}</small>
+                                </div>
+                            </div>
                         </td>
                         <td>
-                            <strong>{{ loan.livre.titre }}</strong><br>
-                            <small style="color: #6b7280;">{{ loan.livre.auteur.nom_complet }}</small>
+                            <div class="book-cell">
+                                <i class="fas fa-book-open text-primary"></i>
+                                <span>{{ loan.livre.titre }}</span><br>
+                                <small class="text-muted">{{ loan.livre.auteur.nom_complet }}</small>
+                            </div>
                         </td>
                         <td>{{ loan.dateEmprunt|date:"d/m/Y" }}</td>
                         <td>{{ loan.dateRetourPrevu|date:"d/m/Y" }}</td>
                         <td>
                             {% if loan.dateRetourEffectif %}
-                            {{ loan.dateRetourEffectif|date:"d/m/Y" }}
+                                {{ loan.dateRetourEffectif|date:"d/m/Y" }}
                             {% else %}
-                            <span style="color: #9ca3af;">-</span>
+                                <span class="text-muted">-</span>
                             {% endif %}
                         </td>
                         <td>
@@ -139,6 +147,13 @@
                         </td>
                     </tr>
                     {% empty %}
+                    <tr>
+                        <td colspan="8" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h3>Aucun emprunt trouvé</h3>
+                            <p>Les emprunts apparaîtront ici dès qu'ils seront enregistrés.</p>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -152,9 +167,7 @@
             <a href="?page={{ page_obj.previous_page_number }}">Précédent</a>
             {% endif %}
 
-            <span class="current">
-                Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
-            </span>
+            <span class="current">Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}</span>
 
             {% if page_obj.has_next %}
             <a href="?page={{ page_obj.next_page_number }}">Suivant</a>
@@ -163,5 +176,6 @@
         </div>
         {% endif %}
     </div>
+
 </div>
 {% endblock %}

@@ -4,7 +4,43 @@
 {% block page_title %}Tableau de bord{% endblock %}
 
 {% block content %}
-<!-- Stats Cards -->
+<!-- Graphiques Section -->
+<div class="charts-grid">
+    <!-- Line Chart - Emprunts par jour -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3><i class="fas fa-chart-line"></i> Emprunts par jour</h3>
+            <span class="chart-period">7 derniers jours</span>
+        </div>
+        <div class="chart-body">
+            <canvas id="loansLineChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Donut Chart - Disponibilité des livres -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3><i class="fas fa-chart-pie"></i> Disponibilité des livres</h3>
+            <span class="chart-period">État actuel</span>
+        </div>
+        <div class="chart-body">
+            <canvas id="availabilityDonutChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Bar Chart - Statut des emprunts -->
+    <div class="chart-card">
+        <div class="chart-header">
+            <h3><i class="fas fa-chart-bar"></i> Statut des emprunts</h3>
+            <span class="chart-period">Ce mois</span>
+        </div>
+        <div class="chart-body">
+            <canvas id="loansStatusBarChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Cards avec KPI et mini-trendlines -->
 <div class="stats-grid">
     <div class="stat-card">
         <div class="stat-icon blue">
@@ -13,6 +49,12 @@
         <div class="stat-details">
             <h4>{{ total_books }}</h4>
             <p>Livres disponibles</p>
+            <div class="mini-trend">
+                <svg class="trend-line" width="80" height="20">
+                    <polyline points="0,15 20,10 40,12 60,8 80,5" stroke="#2563eb" stroke-width="2" fill="none"/>
+                </svg>
+                <span class="trend-value positive"><i class="fas fa-arrow-up"></i> 5%</span>
+            </div>
         </div>
     </div>
 
@@ -23,6 +65,12 @@
         <div class="stat-details">
             <h4>{{ active_loans }}</h4>
             <p>Emprunts en cours</p>
+            <div class="mini-trend">
+                <svg class="trend-line" width="80" height="20">
+                    <polyline points="0,10 20,8 40,12 60,7 80,9" stroke="#10b981" stroke-width="2" fill="none"/>
+                </svg>
+                <span class="trend-value positive"><i class="fas fa-arrow-up"></i> 12%</span>
+            </div>
         </div>
     </div>
 
@@ -33,6 +81,12 @@
         <div class="stat-details">
             <h4>{{ late_returns }}</h4>
             <p>Retours en retard</p>
+            <div class="mini-trend">
+                <svg class="trend-line" width="80" height="20">
+                    <polyline points="0,5 20,8 40,6 60,10 80,12" stroke="#f59e0b" stroke-width="2" fill="none"/>
+                </svg>
+                <span class="trend-value negative"><i class="fas fa-arrow-down"></i> 3%</span>
+            </div>
         </div>
     </div>
 
@@ -43,11 +97,17 @@
         <div class="stat-details">
             <h4>{{ total_users }}</h4>
             <p>Utilisateurs actifs</p>
+            <div class="mini-trend">
+                <svg class="trend-line" width="80" height="20">
+                    <polyline points="0,12 20,10 40,8 60,6 80,4" stroke="#ef4444" stroke-width="2" fill="none"/>
+                </svg>
+                <span class="trend-value positive"><i class="fas fa-arrow-up"></i> 8%</span>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Recent Activity -->
+<!-- Tableau des activités récentes (accent principal) -->
 <div class="card">
     <div class="card-header">
         <h3><i class="fas fa-clock"></i> Activités récentes</h3>
@@ -57,47 +117,101 @@
     </div>
     <div class="card-body">
         <div class="table-responsive">
-            <table>
+            <table class="modern-table">
                 <thead>
                     <tr>
-                        <th>Utilisateur</th>
-                        <th>Livre</th>
-                        <th>Action</th>
-                        <th>Date</th>
-                        <th>Statut</th>
+                        <th><i class="fas fa-user"></i> Utilisateur</th>
+                        <th><i class="fas fa-book"></i> Livre</th>
+                        <th><i class="fas fa-bolt"></i> Action</th>
+                        <th><i class="fas fa-calendar"></i> Date</th>
+                        <th><i class="fas fa-hourglass-half"></i> Durée</th>
+                        <th><i class="fas fa-info-circle"></i> Statut</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for activity in recent_activities|default:activities_placeholder %}
-                    <tr>
+                    <tr class="table-row-animate">
                         <td>
-                            <strong>{{ activity.etudiant.nom }} {{ activity.etudiant.prenoms }}</strong><br>
-                            <small style="color: #6b7280;">{{ activity.etudiant.ecole.nom }}</small>
+                            <div class="user-cell">
+                                <div class="user-avatar-small">
+                                    {{ activity.etudiant.nom.0 }}{{ activity.etudiant.prenoms.0 }}
+                                </div>
+                                <div class="user-info-cell">
+                                    <strong>{{ activity.etudiant.nom }} {{ activity.etudiant.prenoms }}</strong><br>
+                                    <small class="text-muted">{{ activity.etudiant.ecole.nom }}</small>
+                                </div>
+                            </div>
                         </td>
-                        <td>{{ activity.livre.titre }}</td>
+                        <td>
+                            <div class="book-cell">
+                                <i class="fas fa-book-open text-primary"></i>
+                                <span>{{ activity.livre.titre }}</span>
+                            </div>
+                        </td>
                         {% if activity.is_overdue %}
                         <td>
-                            <i class="fas fa-clock"></i>
-                            Rappel
+                            <div class="action-cell warning">
+                                <i class="fas fa-clock"></i>
+                                <span>Rappel</span>
+                            </div>
                         </td>
                         <td>{{ activity.dateEmprunt }}</td>
                         <td>
+                            <span class="duration-badge danger">
+                                <i class="fas fa-exclamation-circle"></i> En retard
+                            </span>
+                        </td>
+                        <td>
                             <span class="badge badge-warning">
-                                En retard
+                                <i class="fas fa-exclamation-triangle"></i> En retard
                             </span>
                         </td>
                         {% elif activity.status == "returned" %}
-                        <td><i class="fas fa-arrow-left"></i> Retour</td>
+                        <td>
+                            <div class="action-cell success">
+                                <i class="fas fa-arrow-left"></i>
+                                <span>Retour</span>
+                            </div>
+                        </td>
                         <td>{{ activity.dateEmprunt }}</td>
-                        <td><span class="badge badge-info">Rendu</span></td>
+                        <td>
+                            <span class="duration-badge success">
+                                <i class="fas fa-check"></i> Terminé
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-info">
+                                <i class="fas fa-check-circle"></i> Rendu
+                            </span>
+                        </td>
                         {% else %}
-                        <td><i class="fas fa-arrow-right"></i> Emprunt</td>
+                        <td>
+                            <div class="action-cell primary">
+                                <i class="fas fa-arrow-right"></i>
+                                <span>Emprunt</span>
+                            </div>
+                        </td>
                         <td>{{ activity.dateEmprunt }}</td>
-                        <td><span class="badge badge-success">Validé</span></td>
+                        <td>
+                            <span class="duration-badge info">
+                                <i class="fas fa-hourglass-half"></i> 14 jours
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge badge-success">
+                                <i class="fas fa-check-double"></i> Validé
+                            </span>
+                        </td>
                         {% endif %}
-                        
                     </tr>
                     {% empty %}
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h3>Aucune activité récente</h3>
+                            <p>Les activités apparaîtront ici dès qu'elles seront enregistrées.</p>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -112,23 +226,247 @@
     </div>
     <div class="card-body">
         <div class="btn-group">
-            <a href="{% url 'loans_form' %}" class="btn btn-primary">
+            <a href="{% url 'loans_form' %}" class="btn btn-primary btn-action">
                 <i class="fas fa-plus"></i>
-                Nouvel emprunt
+                <span>Nouvel emprunt</span>
             </a>
-            <a href="{% url 'returns_form' %}" class="btn btn-success">
+            <a href="{% url 'returns_form' %}" class="btn btn-success btn-action">
                 <i class="fas fa-undo"></i>
-                Retour de livre
+                <span>Retour de livre</span>
             </a>
-            <a href="{% url 'books_form' %}" class="btn btn-secondary">
+            <a href="{% url 'books_form' %}" class="btn btn-secondary btn-action">
                 <i class="fas fa-book"></i>
-                Ajouter un livre
+                <span>Ajouter un livre</span>
             </a>
-            <a href="{% url 'users_form' %}" class="btn btn-secondary">
+            <a href="{% url 'users_form' %}" class="btn btn-secondary btn-action">
                 <i class="fas fa-user-plus"></i>
-                Nouvel utilisateur
+                <span>Nouvel utilisateur</span>
             </a>
         </div>
     </div>
 </div>
+
+<!-- Chart.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+<!-- JavaScript pour les graphiques -->
+<script>
+    // Variables
+    const labelsLast7Days = {{ labels_last_7_days|safe }};
+    const loansLast7Days = {{ loans_last_7_days|safe }};
+    const totalDisponibles = {{ total_disponibles }};
+    const totalEmpruntes = {{ total_empruntes }};
+    const totalEnRetard = {{ total_en_retard }};
+    const loansStatus = {{ loans_status|safe }};
+
+    // Configuration globale des graphiques
+    Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+    Chart.defaults.responsive = true;
+    Chart.defaults.maintainAspectRatio = true;
+    
+    // Couleurs harmonieuses
+    const colors = {
+        primary: '#2563eb',
+        success: '#10b981',
+        warning: '#f59e0b',
+        danger: '#ef4444',
+        info: '#3b82f6',
+        primaryLight: 'rgba(37, 99, 235, 0.1)',
+        successLight: 'rgba(16, 185, 129, 0.1)',
+        warningLight: 'rgba(245, 158, 11, 0.1)',
+        dangerLight: 'rgba(239, 68, 68, 0.1)'
+    };
+
+    // Line Chart - Emprunts par jour
+    const loansLineCtx = document.getElementById('loansLineChart').getContext('2d');
+    const loansLineChart = new Chart(loansLineCtx, {
+        type: 'line',
+        data: {
+            labels: labelsLast7Days,
+            datasets: [{
+                label: 'Emprunts',
+                data: loansLast7Days,
+                borderColor: colors.primary,
+                backgroundColor: colors.primaryLight,
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                pointBackgroundColor: colors.primary,
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 2,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    cornerRadius: 8,
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 13
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+
+    // Donut Chart - Disponibilité des livres
+    const availabilityDonutCtx = document.getElementById('availabilityDonutChart').getContext('2d');
+    const availabilityDonutChart = new Chart(availabilityDonutCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Disponibles', 'Empruntés', 'En retard'],
+            datasets: [{
+                data: [totalDisponibles, totalEmpruntes, totalEnRetard],
+                backgroundColor: [colors.success, colors.info, colors.danger],
+                borderWidth: 0,
+                hoverOffset: 10
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1.5,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 15,
+                        font: {
+                            size: 13
+                        },
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': ' + context.parsed + '%';
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+
+    // Bar Chart - Statut des emprunts
+    const loansStatusBarCtx = document.getElementById('loansStatusBarChart').getContext('2d');
+    const loansStatusBarChart = new Chart(loansStatusBarCtx, {
+        type: 'bar',
+        data: {
+            labels: ['En retard', 'Rendus', 'En cours'],
+            datasets: [{
+                label: 'Emprunts',
+                data: [loansStatus.late, loansStatus.returned, loansStatus.active],
+                backgroundColor: [colors.danger, colors.success, colors.warning],
+                borderRadius: 8,
+                borderSkipped: false
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            aspectRatio: 1.5,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    cornerRadius: 8,
+                    callbacks: {
+                        label: function(context) {
+                            return context.parsed.y + ' emprunts';
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)',
+                        drawBorder: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            },
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart'
+            }
+        }
+    });
+
+    // Animation des lignes du tableau
+    document.addEventListener('DOMContentLoaded', function() {
+        const rows = document.querySelectorAll('.table-row-animate');
+        rows.forEach((row, index) => {
+            row.style.animationDelay = `${index * 0.1}s`;
+        });
+    });
+</script>
 {% endblock %}

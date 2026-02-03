@@ -3,6 +3,204 @@
 {% block title %}{% if book %}Modifier{% else %}Ajouter{% endif %} un livre - Bibliothèque{% endblock %}
 {% block page_title %}{% if book %}Modifier{% else %}Ajouter{% endif %} un livre{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Autocomplete container */
+    .autocomplete-wrapper {
+        position: relative;
+    }
+
+    .autocomplete-list {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 2px solid var(--primary-color);
+        border-top: none;
+        border-radius: 0 0 10px 10px;
+        max-height: 280px;
+        overflow-y: auto;
+        z-index: 1000;
+        box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
+        display: none;
+        margin-top: -2px;
+    }
+
+    .autocomplete-list.show {
+        display: block;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .autocomplete-item {
+        padding: 14px 18px;
+        cursor: pointer;
+        border-bottom: 1px solid #f3f4f6;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .autocomplete-item:last-child {
+        border-bottom: none;
+    }
+
+    .autocomplete-item:hover {
+        background: linear-gradient(135deg, #f0f7ff, #e0f0ff);
+        transform: translateX(4px);
+    }
+
+    .autocomplete-item.selected {
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    }
+
+    .autocomplete-item-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+
+    .autocomplete-item-content {
+        flex: 1;
+    }
+
+    .autocomplete-item-name {
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--text-dark);
+        margin-bottom: 2px;
+    }
+
+    .autocomplete-item-details {
+        font-size: 13px;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .autocomplete-item-details i {
+        font-size: 11px;
+    }
+
+    .autocomplete-empty {
+        padding: 20px;
+        text-align: center;
+        color: var(--text-light);
+    }
+
+    .autocomplete-empty i {
+        font-size: 32px;
+        margin-bottom: 8px;
+        opacity: 0.3;
+    }
+
+    .autocomplete-create {
+        padding: 14px 18px;
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        border-top: 2px solid #d1fae5;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 600;
+        color: var(--success-color);
+    }
+
+    .autocomplete-create:hover {
+        background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+        transform: translateX(4px);
+    }
+
+    .autocomplete-create i {
+        font-size: 16px;
+    }
+
+    /* Input focus state avec autocomplete */
+    .autocomplete-wrapper input:focus {
+        border-radius: 10px 10px 0 0;
+    }
+
+    .autocomplete-wrapper input.has-suggestions:focus {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    /* Loading spinner */
+    .autocomplete-loading {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .spinner {
+        border: 3px solid #f3f4f6;
+        border-top: 3px solid var(--primary-color);
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Scrollbar personnalisé */
+    .autocomplete-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .autocomplete-list::-webkit-scrollbar-track {
+        background: #f3f4f6;
+        border-radius: 0 0 10px 0;
+    }
+
+    .autocomplete-list::-webkit-scrollbar-thumb {
+        background: var(--primary-color);
+        border-radius: 10px;
+    }
+
+    .autocomplete-list::-webkit-scrollbar-thumb:hover {
+        background: var(--primary-dark);
+    }
+
+    /* Badge pour ID caché */
+    .selected-id-badge {
+        display: inline-block;
+        margin-top: 6px;
+        padding: 4px 10px;
+        background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+        color: var(--primary-color);
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="card">
     <div class="card-header">
@@ -16,8 +214,12 @@
         </a>
     </div>
     <div class="card-body">
-        <form method="post">
+        <form method="post" id="bookForm">
             {% csrf_token %}
+            
+            <!-- Champs cachés pour les IDs -->
+            <input type="hidden" id="author_id" name="author_id" value="{{ book.auteur.id|default:'' }}">
+            <input type="hidden" id="publisher_id" name="publisher_id" value="{{ book.editeur.id|default:'' }}">
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
                 <!-- Colonne gauche -->
@@ -40,14 +242,22 @@
                         <label for="author">
                             Auteur <span class="required">*</span>
                         </label>
-                        <input 
-                            type="text" 
-                            id="author" 
-                            name="author" 
-                            value="{{ book.auteur.nom_complet }}"
-                            placeholder="Ex: Antoine de Saint-Exupéry"
-                            required
-                        >
+                        <div class="autocomplete-wrapper">
+                            <input 
+                                type="text" 
+                                id="author" 
+                                name="author" 
+                                value="{{ book.auteur.nom_complet }}"
+                                placeholder="Commencez à taper le nom de l'auteur..."
+                                autocomplete="off"
+                                required
+                            >
+                            <div class="autocomplete-list" id="authorList"></div>
+                        </div>
+                        <span class="form-help">
+                            <i class="fas fa-info-circle"></i> 
+                            Tapez au moins 2 caractères pour voir les suggestions
+                        </span>
                     </div>
 
                     <div class="form-group">
@@ -69,14 +279,22 @@
                         <label for="publisher">
                             Éditeur <span class="required">*</span>
                         </label>
-                        <input 
-                            type="text" 
-                            id="publisher" 
-                            name="publisher" 
-                            value="{{ book.editeur.nom }}"
-                            placeholder="Ex: Gallimard"
-                            required
-                        >
+                        <div class="autocomplete-wrapper">
+                            <input 
+                                type="text" 
+                                id="publisher" 
+                                name="publisher" 
+                                value="{{ book.editeur.nom }}"
+                                placeholder="Commencez à taper le nom de l'éditeur..."
+                                autocomplete="off"
+                                required
+                            >
+                            <div class="autocomplete-list" id="publisherList"></div>
+                        </div>
+                        <span class="form-help">
+                            <i class="fas fa-info-circle"></i> 
+                            Tapez au moins 2 caractères pour voir les suggestions
+                        </span>
                     </div>
 
                     <div class="form-group">
@@ -197,4 +415,308 @@
         </form>
     </div>
 </div>
+
+<script>
+    // Configuration
+    const DEBOUNCE_DELAY = 300; // ms
+    const MIN_CHARS = 2;
+
+    // Utilitaire debounce
+    function debounce(func, delay) {
+        let timeoutId;
+        return function (...args) {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => func.apply(this, args), delay);
+        };
+    }
+
+    // Formater la date de naissance
+    function formatDate(dateString) {
+        if (!dateString) return 'Date inconnue';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('fr-FR', { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+        });
+    }
+
+    // Obtenir les initiales
+    function getInitials(name) {
+        return name
+            .split(' ')
+            .map(word => word[0])
+            .join('')
+            .toUpperCase()
+            .substring(0, 2);
+    }
+
+    // Classe Autocomplete
+    class Autocomplete {
+        constructor(inputId, listId, hiddenId, type) {
+            this.input = document.getElementById(inputId);
+            this.list = document.getElementById(listId);
+            this.hiddenInput = document.getElementById(hiddenId);
+            this.type = type; // 'author' ou 'publisher'
+            this.selectedIndex = -1;
+            this.items = [];
+            
+            this.init();
+        }
+
+        init() {
+            // Événement de saisie avec debounce
+            this.input.addEventListener('input', debounce((e) => {
+                this.handleInput(e.target.value);
+            }, DEBOUNCE_DELAY));
+
+            // Navigation au clavier
+            this.input.addEventListener('keydown', (e) => {
+                this.handleKeydown(e);
+            });
+
+            // Fermer la liste si clic en dehors
+            document.addEventListener('click', (e) => {
+                if (!this.input.contains(e.target) && !this.list.contains(e.target)) {
+                    this.hideList();
+                }
+            });
+
+            // Réinitialiser l'ID si l'input est vidé
+            this.input.addEventListener('input', (e) => {
+                if (e.target.value.trim() === '') {
+                    this.hiddenInput.value = '';
+                }
+            });
+        }
+
+        async handleInput(value) {
+            const query = value.trim();
+
+            if (query.length < MIN_CHARS) {
+                this.hideList();
+                return;
+            }
+
+            this.showLoading();
+            
+            try {
+                const data = await this.fetchSuggestions(query);
+                this.displaySuggestions(data, query);
+            } catch (error) {
+                console.error('Erreur lors de la récupération des suggestions:', error);
+                this.showError();
+            }
+        }
+
+        async fetchSuggestions(query) {
+            const url = `/api/${this.type}s/search/?q=${encodeURIComponent(query)}`;
+            const response = await fetch(url);
+            
+            if (!response.ok) {
+                throw new Error('Erreur réseau');
+            }
+            
+            return await response.json();
+        }
+
+        displaySuggestions(data, query) {
+            this.items = data;
+            this.selectedIndex = -1;
+
+            if (data.length === 0) {
+                this.showEmpty(query);
+                return;
+            }
+
+            let html = '';
+            
+            data.forEach((item, index) => {
+                if (this.type === 'author') {
+                    html += this.renderAuthorItem(item, index);
+                } else {
+                    html += this.renderPublisherItem(item, index);
+                }
+            });
+
+            // Option pour créer un nouveau
+            html += this.renderCreateOption(query);
+
+            this.list.innerHTML = html;
+            this.showList();
+            this.attachClickEvents();
+        }
+
+        renderAuthorItem(author, index) {
+            const initials = getInitials(author.nom_complet);
+            const dateNaiss = author.dateNaiss ? formatDate(author.dateNaiss) : 'Date de naissance inconnue';
+            
+            return `
+                <div class="autocomplete-item" data-index="${index}" data-id="${author.id}">
+                    <div class="autocomplete-item-icon">${initials}</div>
+                    <div class="autocomplete-item-content">
+                        <div class="autocomplete-item-name">${author.nom_complet}</div>
+                        <div class="autocomplete-item-details">
+                            <i class="fas fa-calendar"></i>
+                            <span>${dateNaiss}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        renderPublisherItem(publisher, index) {
+            const initials = getInitials(publisher.nom);
+            
+            return `
+                <div class="autocomplete-item" data-index="${index}" data-id="${publisher.id}">
+                    <div class="autocomplete-item-icon">${initials}</div>
+                    <div class="autocomplete-item-content">
+                        <div class="autocomplete-item-name">${publisher.nom}</div>
+                        <div class="autocomplete-item-details">
+                            <i class="fas fa-building"></i>
+                            <span>Maison d'édition</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        renderCreateOption(query) {
+            return `
+                <div class="autocomplete-create" data-create="true" data-value="${query}">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Créer "${query}"</span>
+                </div>
+            `;
+        }
+
+        showEmpty(query) {
+            this.list.innerHTML = `
+                <div class="autocomplete-empty">
+                    <i class="fas fa-search"></i>
+                    <p>Aucun résultat pour "${query}"</p>
+                </div>
+                ${this.renderCreateOption(query)}
+            `;
+            this.showList();
+            this.attachClickEvents();
+        }
+
+        showLoading() {
+            this.list.innerHTML = `
+                <div class="autocomplete-loading">
+                    <div class="spinner"></div>
+                </div>
+            `;
+            this.showList();
+        }
+
+        showError() {
+            this.list.innerHTML = `
+                <div class="autocomplete-empty">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Erreur lors du chargement des suggestions</p>
+                </div>
+            `;
+            this.showList();
+        }
+
+        attachClickEvents() {
+            // Clic sur un item
+            this.list.querySelectorAll('.autocomplete-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const index = parseInt(item.dataset.index);
+                    this.selectItem(index);
+                });
+            });
+
+            // Clic sur "Créer"
+            const createBtn = this.list.querySelector('.autocomplete-create');
+            if (createBtn) {
+                createBtn.addEventListener('click', () => {
+                    const value = createBtn.dataset.value;
+                    this.createNew(value);
+                });
+            }
+        }
+
+        selectItem(index) {
+            const item = this.items[index];
+            if (!item) return;
+
+            const name = this.type === 'author' ? item.nom_complet : item.nom;
+            this.input.value = name;
+            this.hiddenInput.value = item.id;
+            this.hideList();
+        }
+
+        createNew(value) {
+            this.input.value = value;
+            this.hiddenInput.value = ''; // Nouvelle entrée, pas d'ID
+            this.hideList();
+        }
+
+        handleKeydown(e) {
+            const items = this.list.querySelectorAll('.autocomplete-item');
+            
+            if (!this.list.classList.contains('show') || items.length === 0) {
+                return;
+            }
+
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    this.selectedIndex = Math.min(this.selectedIndex + 1, items.length - 1);
+                    this.highlightItem(items);
+                    break;
+                    
+                case 'ArrowUp':
+                    e.preventDefault();
+                    this.selectedIndex = Math.max(this.selectedIndex - 1, 0);
+                    this.highlightItem(items);
+                    break;
+                    
+                case 'Enter':
+                    e.preventDefault();
+                    if (this.selectedIndex >= 0) {
+                        this.selectItem(this.selectedIndex);
+                    }
+                    break;
+                    
+                case 'Escape':
+                    this.hideList();
+                    break;
+            }
+        }
+
+        highlightItem(items) {
+            items.forEach((item, index) => {
+                if (index === this.selectedIndex) {
+                    item.classList.add('selected');
+                    item.scrollIntoView({ block: 'nearest' });
+                } else {
+                    item.classList.remove('selected');
+                }
+            });
+        }
+
+        showList() {
+            this.list.classList.add('show');
+            this.input.classList.add('has-suggestions');
+        }
+
+        hideList() {
+            this.list.classList.remove('show');
+            this.input.classList.remove('has-suggestions');
+            this.selectedIndex = -1;
+        }
+    }
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', () => {
+        new Autocomplete('author', 'authorList', 'author_id', 'author');
+        new Autocomplete('publisher', 'publisherList', 'publisher_id', 'publisher');
+    });
+</script>
 {% endblock %}

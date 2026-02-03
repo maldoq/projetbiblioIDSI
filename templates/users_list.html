@@ -7,30 +7,60 @@
 <div class="card">
     <div class="card-header">
         <h3><i class="fas fa-users"></i> Liste des utilisateurs</h3>
-        <a href="{% url 'users_form' %}" class="btn btn-primary">
-            <i class="fas fa-user-plus"></i>
-            Ajouter un utilisateur
-        </a>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a href="{% url 'users_form' %}" class="btn btn-primary">
+                <i class="fas fa-user-plus"></i>
+                Ajouter un utilisateur
+            </a>
+
+            <!-- Dropdown Action -->
+            <div class="action-dropdown">
+                <button class="btn btn-secondary action-toggle">
+                    <i class="fas fa-cogs"></i> Action
+                    <i class="fas fa-chevron-down caret"></i>
+                </button>
+
+                <div class="action-menu">
+                    <a href="{% url 'users_export_excel' %}" class="action-item">
+                        <i class="fas fa-file-excel"></i>
+                        Exporter Excel
+                    </a>
+
+                    <form action="{% url 'users_import_excel' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <label class="file-upload">
+                            <i class="fas fa-upload"></i>
+                            <span class="file-label-text">Importer Excel</span>
+                            <input type="file" name="excel_file" accept=".xlsx,.xls" required
+                                onchange="updateFileName(this)">
+                        </label>
+
+                        <!-- Nom du fichier -->
+                        <div class="file-name" id="file-name">
+                            Aucun fichier sélectionné
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-sm w-100 mt-2">
+                            Valider l'import
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
     <div class="card-body">
         <!-- Search Bar -->
         <div class="search-bar">
             <form method="get" style="display: flex; gap: 12px; width: 100%;">
-                <input 
-                    type="text" 
-                    name="search" 
-                    class="search-input" 
-                    placeholder="Rechercher un utilisateur (nom, email, classe...)"
-                    value="{{ search_query }}"
-                >
+                <input type="text" name="search" class="search-input"
+                    placeholder="Rechercher un utilisateur (nom, email, classe...)" value="{{ search_query }}">
                 <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-search"></i>
-                    Rechercher
+                    <i class="fas fa-search"></i> Rechercher
                 </button>
                 {% if search_query %}
                 <a href="{% url 'users_list' %}" class="btn btn-secondary">
-                    <i class="fas fa-times"></i>
-                    Réinitialiser
+                    <i class="fas fa-times"></i> Réinitialiser
                 </a>
                 {% endif %}
             </form>
@@ -38,24 +68,32 @@
 
         <!-- Users Table -->
         <div class="table-responsive">
-            <table>
+            <table class="modern-table">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Nom complet</th>
-                        <th>Email</th>
-                        <th>Ecole</th>
-                        <th>Emprunts actifs</th>
-                        <th>Statut</th>
-                        <th>Actions</th>
+                        <th><i class="fas fa-id-badge"></i> Matricule</th>
+                        <th><i class="fas fa-user"></i> Nom complet</th>
+                        <th><i class="fas fa-envelope"></i> Email</th>
+                        <th><i class="fas fa-school"></i> École</th>
+                        <th><i class="fas fa-book"></i> Emprunts actifs</th>
+                        <th><i class="fas fa-info-circle"></i> Statut</th>
+                        <th><i class="fas fa-cogs"></i> Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for user in users %}
-                    <tr>
+                    <tr class="table-row-animate">
                         <td>#{{ user.matricule }}</td>
                         <td>
-                            <strong>{{ user.nom }} {{ user.prenoms }}</strong>
+                            <div class="user-cell">
+                                <div class="user-avatar-small">
+                                    {{ user.nom.0 }}{{ user.prenoms.0 }}
+                                </div>
+                                <div class="user-info-cell">
+                                    <strong>{{ user.nom }} {{ user.prenoms }}</strong><br>
+                                    <small class="text-muted">{{ user.ecole.nom }}</small>
+                                </div>
+                            </div>
                         </td>
                         <td>{{ user.emailInst }}</td>
                         <td>{{ user.ecole.nom }}</td>
@@ -66,29 +104,37 @@
                         </td>
                         <td>
                             {% if user.is_active %}
-                            <span class="badge badge-success">Actif</span>
+                            <span class="badge badge-success"><i class="fas fa-check-circle"></i> Actif</span>
                             {% else %}
-                            <span class="badge badge-secondary">Inactif</span>
+                            <span class="badge badge-secondary"><i class="fas fa-times-circle"></i> Inactif</span>
                             {% endif %}
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <a href="{% url 'users_edit' user.matricule %}" class="btn btn-sm btn-icon btn-view" title="Voir">
+                                <a href="{% url 'users_edit' user.matricule %}" class="btn btn-sm btn-icon btn-view"
+                                    title="Voir">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                <a href="{% url 'users_edit' user.matricule %}" class="btn btn-sm btn-icon btn-edit" title="Modifier">
+                                <a href="{% url 'users_edit' user.matricule %}" class="btn btn-sm btn-icon btn-edit"
+                                    title="Modifier">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="{% url 'users_delete' user.matricule %}" 
-                                   class="btn btn-sm btn-icon btn-delete" 
-                                   title="Supprimer"
-                                   onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
+                                <a href="{% url 'users_delete' user.matricule %}"
+                                    class="btn btn-sm btn-icon btn-delete" title="Supprimer"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?');">
                                     <i class="fas fa-trash"></i>
                                 </a>
                             </div>
                         </td>
                     </tr>
                     {% empty %}
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h3>Aucun utilisateur trouvé</h3>
+                            <p>Les utilisateurs apparaîtront ici dès qu'ils seront enregistrés.</p>
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -113,5 +159,21 @@
         </div>
         {% endif %}
     </div>
+
 </div>
+{% endblock %}
+{% block extra_js %}
+<script>
+    function updateFileName(input) {
+        const fileNameDiv = document.getElementById("file-name");
+
+        if (input.files && input.files.length > 0) {
+            fileNameDiv.textContent = input.files[0].name;
+            fileNameDiv.classList.add("file-selected");
+        } else {
+            fileNameDiv.textContent = "Aucun fichier sélectionné";
+            fileNameDiv.classList.remove("file-selected");
+        }
+    }
+</script>
 {% endblock %}

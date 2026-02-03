@@ -83,6 +83,7 @@ class Etudiant(models.Model):
 
 class Auteur(models.Model):
     nom_complet = models.CharField(max_length=150,null=False)
+    dateNaiss = models.DateField(null=True, default=None)
 
 class Editeur(models.Model):
     nom = models.CharField(max_length=200,null=False)

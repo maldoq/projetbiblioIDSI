@@ -16,7 +16,7 @@
 <body>
     <div class="login-wrapper">
         <div class="login-container">
-            <!-- Left Side - Form -->
+            <!-- Partie Gauche - Formulaire -->
             <div class="login-left">
                 <div class="login-logo">
                     <i class="fas fa-book-open"></i>
@@ -24,28 +24,42 @@
                     <p>Système de gestion des emprunts</p>
                 </div>
 
+                <!-- Basculement Bibliothécaire / Étudiant -->
+                <div class="user-type-toggle">
+                    <button type="button" class="toggle-btn active" id="btn-librarian">
+                        <i class="fas fa-user-tie"></i>
+                        Bibliothécaire
+                    </button>
+                    <button type="button" class="toggle-btn" id="btn-student">
+                        <i class="fas fa-user-graduate"></i>
+                        Étudiant
+                    </button>
+                </div>
+
                 <!-- Messages Flash -->
                 {% if messages %}
                 <div class="messages">
                     {% for message in messages %}
                     <div class="alert alert-{{ message.tags }}">
-                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                        <i class="fas fa-{% if message.tags == 'error' %}exclamation-circle{% elif message.tags == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
                         <span>{{ message }}</span>
                     </div>
                     {% endfor %}
                 </div>
                 {% endif %}
 
-                <form method="post" class="login-form">
+                <!-- Formulaire Bibliothécaire -->
+                <form method="post" class="login-form" id="form-librarian">
                     {% csrf_token %}
+                    <input type="hidden" name="user_type" value="librarian">
                     
                     <div class="form-group">
-                        <label for="username">
+                        <label for="username-librarian">
                             <i class="fas fa-user"></i> Nom d'utilisateur
                         </label>
                         <input 
                             type="text" 
-                            id="username" 
+                            id="username-librarian" 
                             name="username" 
                             placeholder="Entrez votre nom d'utilisateur"
                             required
@@ -54,12 +68,12 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="password">
+                        <label for="password-librarian">
                             <i class="fas fa-lock"></i> Mot de passe
                         </label>
                         <input 
                             type="password" 
-                            id="password" 
+                            id="password-librarian" 
                             name="password" 
                             placeholder="Entrez votre mot de passe"
                             required
@@ -71,7 +85,51 @@
                             <input type="checkbox" name="remember">
                             <span>Se souvenir de moi</span>
                         </label>
-                        <a href="{% url "dashboard" %}" class="forgot-password">Mot de passe oublié?</a>
+                        <a href="#" class="forgot-password">Mot de passe oublié?</a>
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </button>
+                </form>
+
+                <!-- Formulaire Étudiant (caché par défaut) -->
+                <form method="post" class="login-form" id="form-student" style="display: none;">
+                    {% csrf_token %}
+                    <input type="hidden" name="user_type" value="student">
+                    
+                    <div class="form-group">
+                        <label for="student-id">
+                            <i class="fas fa-id-card"></i> Numéro d'étudiant
+                        </label>
+                        <input 
+                            type="text" 
+                            id="student-id" 
+                            name="student_id" 
+                            placeholder="Entrez votre numéro d'étudiant"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password-student">
+                            <i class="fas fa-lock"></i> Mot de passe
+                        </label>
+                        <input 
+                            type="password" 
+                            id="password-student" 
+                            name="password" 
+                            placeholder="Entrez votre mot de passe"
+                            required
+                        >
+                    </div>
+
+                    <div class="login-options">
+                        <label class="remember-me">
+                            <input type="checkbox" name="remember">
+                            <span>Se souvenir de moi</span>
+                        </label>
+                        <a href="#" class="forgot-password">Mot de passe oublié?</a>
                     </div>
 
                     <button type="submit" class="btn-login">
@@ -80,15 +138,123 @@
                 </form>
             </div>
 
-            <!-- Right Side - Illustration -->
+            <!-- Partie Droite - Illustration -->
             <div class="login-right">
-                <div class="login-right-content">
+                <div class="login-right-content" id="right-content-librarian">
                     <i class="fas fa-book-reader"></i>
                     <h2>Bienvenue !</h2>
                     <p>Gérez efficacement les emprunts de livres de votre bibliothèque scolaire en toute simplicité.</p>
                 </div>
+                
+                <div class="login-right-content" id="right-content-student" style="display: none;">
+                    <i class="fas fa-graduation-cap"></i>
+                    <h2>Espace Étudiant</h2>
+                    <p>Consultez vos emprunts en cours, découvrez de nouveaux livres et gérez vos réservations.</p>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- JavaScript pour le basculement -->
+    <script>
+        // Récupération des éléments
+        const btnLibrarian = document.getElementById('btn-librarian');
+        const btnStudent = document.getElementById('btn-student');
+        const formLibrarian = document.getElementById('form-librarian');
+        const formStudent = document.getElementById('form-student');
+        const rightContentLibrarian = document.getElementById('right-content-librarian');
+        const rightContentStudent = document.getElementById('right-content-student');
+
+        // Fonction pour basculer vers le mode bibliothécaire
+        btnLibrarian.addEventListener('click', function() {
+            // Mise à jour des boutons
+            btnLibrarian.classList.add('active');
+            btnStudent.classList.remove('active');
+            
+            // Transition douce entre les formulaires
+            formStudent.style.opacity = '0';
+            formStudent.style.transform = 'translateX(-20px)';
+            
+            setTimeout(() => {
+                formStudent.style.display = 'none';
+                formLibrarian.style.display = 'block';
+                formLibrarian.style.opacity = '0';
+                formLibrarian.style.transform = 'translateX(20px)';
+                
+                setTimeout(() => {
+                    formLibrarian.style.transition = 'all 0.4s ease';
+                    formLibrarian.style.opacity = '1';
+                    formLibrarian.style.transform = 'translateX(0)';
+                }, 10);
+            }, 300);
+            
+            // Transition du contenu de droite
+            rightContentStudent.style.opacity = '0';
+            rightContentStudent.style.transform = 'scale(0.9)';
+            
+            setTimeout(() => {
+                rightContentStudent.style.display = 'none';
+                rightContentLibrarian.style.display = 'block';
+                rightContentLibrarian.style.opacity = '0';
+                rightContentLibrarian.style.transform = 'scale(0.9)';
+                
+                setTimeout(() => {
+                    rightContentLibrarian.style.transition = 'all 0.4s ease';
+                    rightContentLibrarian.style.opacity = '1';
+                    rightContentLibrarian.style.transform = 'scale(1)';
+                }, 10);
+            }, 300);
+        });
+
+        // Fonction pour basculer vers le mode étudiant
+        btnStudent.addEventListener('click', function() {
+            // Mise à jour des boutons
+            btnStudent.classList.add('active');
+            btnLibrarian.classList.remove('active');
+            
+            // Transition douce entre les formulaires
+            formLibrarian.style.opacity = '0';
+            formLibrarian.style.transform = 'translateX(-20px)';
+            
+            setTimeout(() => {
+                formLibrarian.style.display = 'none';
+                formStudent.style.display = 'block';
+                formStudent.style.opacity = '0';
+                formStudent.style.transform = 'translateX(20px)';
+                
+                setTimeout(() => {
+                    formStudent.style.transition = 'all 0.4s ease';
+                    formStudent.style.opacity = '1';
+                    formStudent.style.transform = 'translateX(0)';
+                }, 10);
+            }, 300);
+            
+            // Transition du contenu de droite
+            rightContentLibrarian.style.opacity = '0';
+            rightContentLibrarian.style.transform = 'scale(0.9)';
+            
+            setTimeout(() => {
+                rightContentLibrarian.style.display = 'none';
+                rightContentStudent.style.display = 'block';
+                rightContentStudent.style.opacity = '0';
+                rightContentStudent.style.transform = 'scale(0.9)';
+                
+                setTimeout(() => {
+                    rightContentStudent.style.transition = 'all 0.4s ease';
+                    rightContentStudent.style.opacity = '1';
+                    rightContentStudent.style.transform = 'scale(1)';
+                }, 10);
+            }, 300);
+        });
+
+        // Animation du bouton au clic
+        document.querySelectorAll('.btn-login').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                if (!this.classList.contains('loading')) {
+                    this.classList.add('loading');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
